@@ -1,0 +1,2033 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f6f1e6">
+<title>Stupina mea — manager apicol</title>
+<style>
+  :root {
+    --bg: #f6f1e6;
+    --card: #fffdf8;
+    --ink: #2c2217;
+    --muted: #7b6a57;
+    --line: #e6dccb;
+    --line-strong: #d8cbb4;
+    --honey: #e8a11c;
+    --honey-2: #f7c948;
+    --honey-ink: #3a2a08;
+    --green: #3c8b57;
+    --amber: #b97f08;
+    --red: #c0492f;
+    --blue: #3c6f9e;
+    --radius: 16px;
+    --shadow: 0 8px 24px -14px rgba(70, 50, 20, 0.45);
+    --safe: env(safe-area-inset-bottom, 0px);
+  }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  html { -webkit-text-size-adjust: 100%; }
+
+  body {
+    margin: 0;
+    background:
+      radial-gradient(700px 380px at 100% -10%, rgba(247, 201, 72, 0.22), transparent 70%),
+      radial-gradient(500px 320px at -10% 20%, rgba(232, 161, 28, 0.10), transparent 70%),
+      var(--bg);
+    color: var(--ink);
+    font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+
+  h1, h2, h3 { margin: 0; line-height: 1.2; letter-spacing: -0.01em; }
+  p { margin: 0; }
+  button { font-family: inherit; }
+  .hidden { display: none !important; }
+
+  .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: rgba(246, 241, 230, 0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .topbar-inner {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .brand { flex: 1; min-width: 0; }
+  .brand h1 { font-size: 1.05rem; }
+  .brand p { font-size: 0.7rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  .top-actions { display: flex; gap: 8px; flex: none; }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    min-height: 48px;
+    padding: 0 18px;
+    border-radius: 12px;
+    border: 1px solid transparent;
+    background: var(--card);
+    color: var(--ink);
+    font-size: 0.92rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.12s ease, box-shadow 0.2s ease, background 0.2s ease;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .btn:active { transform: scale(0.97); }
+  .btn svg { width: 17px; height: 17px; flex: none; }
+
+  .btn.primary {
+    background: linear-gradient(135deg, var(--honey-2), var(--honey));
+    color: var(--honey-ink);
+    box-shadow: 0 6px 16px -8px rgba(200, 130, 10, 0.9);
+  }
+
+  .btn.ghost {
+    background: transparent;
+    border-color: var(--line-strong);
+    color: var(--ink);
+  }
+
+  .btn.small { min-height: 38px; padding: 0 13px; font-size: 0.8rem; border-radius: 10px; }
+  .btn.small svg { width: 15px; height: 15px; }
+
+  main {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 16px 16px calc(96px + var(--safe));
+  }
+
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  .module-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 4px 0 14px;
+  }
+
+  .module-head > div { min-width: 0; }
+  .module-head .btn { flex: none; }
+
+  .kicker {
+    font-size: 0.66rem;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: var(--amber);
+    font-weight: 800;
+  }
+
+  .module-head h2 { font-size: 1.35rem; margin-top: 2px; }
+
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 9px;
+    margin-bottom: 16px;
+  }
+
+  .stat {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 11px 13px;
+    box-shadow: var(--shadow);
+  }
+
+  .stat b { display: block; font-size: 1.3rem; letter-spacing: -0.02em; }
+  .stat span { font-size: 0.7rem; color: var(--muted); }
+  .stat.ok b { color: var(--green); }
+  .stat.warn b { color: var(--amber); }
+  .stat.bad b { color: var(--red); }
+
+  @media (min-width: 600px) {
+    .stats { grid-template-columns: repeat(4, 1fr); }
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 14px;
+    margin-bottom: 11px;
+    box-shadow: var(--shadow);
+  }
+
+  .card.compact { padding: 13px; }
+
+  .card-top { display: flex; align-items: flex-start; gap: 10px; }
+  .grow { flex: 1; min-width: 0; }
+
+  .card-title {
+    font-weight: 700;
+    font-size: 0.98rem;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    flex-wrap: wrap;
+    overflow-wrap: anywhere;
+  }
+
+  .hive-badge {
+    flex: none;
+    min-width: 46px;
+    height: 46px;
+    padding: 0 8px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--honey-2), var(--honey));
+    color: var(--honey-ink);
+    display: grid;
+    place-items: center;
+    font-weight: 800;
+    font-size: 0.98rem;
+  }
+
+  .dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+    border: 1px solid rgba(0, 0, 0, 0.18);
+    flex: none;
+  }
+
+  .qc-alb { background: #fafaf4; }
+  .qc-galben { background: #f2c200; }
+  .qc-rosu { background: #c0492f; }
+  .qc-verde { background: #3c8b57; }
+  .qc-albastru { background: #3c6f9e; }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; }
+
+  .chip {
+    font-size: 0.68rem;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 999px;
+    background: #f1e9da;
+    color: #6b5a44;
+    white-space: nowrap;
+  }
+
+  .chip.state-ok { background: #e3f2e7; color: #2f7047; }
+  .chip.state-warn { background: #fbf0d4; color: #8a6100; }
+  .chip.state-bad { background: #f9e3de; color: #a43a24; }
+
+  .mini-metrics {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-top: 12px;
+    padding-top: 11px;
+    border-top: 1px dashed var(--line);
+  }
+
+  .mini-metrics b { display: block; font-size: 1.02rem; }
+  .mini-metrics span { font-size: 0.66rem; color: var(--muted); }
+
+  .info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 11px;
+    padding-top: 10px;
+    border-top: 1px dashed var(--line);
+  }
+
+  .info-grid span { display: block; font-size: 0.66rem; color: var(--muted); }
+  .info-grid b { font-size: 0.85rem; }
+
+  .text-ok { color: var(--green); }
+  .text-warn { color: var(--amber); }
+  .text-bad { color: var(--red); }
+
+  .note {
+    margin: 10px 0 0;
+    font-size: 0.78rem;
+    color: var(--muted);
+    border-left: 2px solid var(--line-strong);
+    padding-left: 8px;
+    overflow-wrap: anywhere;
+  }
+
+  .icon-actions { display: flex; gap: 4px; flex: none; }
+
+  .icon-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    border: 1px solid var(--line);
+    background: #fff;
+    display: grid;
+    place-items: center;
+    color: var(--muted);
+    cursor: pointer;
+  }
+
+  .icon-btn svg { width: 17px; height: 17px; }
+  .icon-btn.danger { color: var(--red); }
+
+  .form-card {
+    background: var(--card);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 18px;
+    box-shadow: var(--shadow);
+    scroll-margin-top: 80px;
+  }
+
+  .form-title { font-size: 1rem; margin-bottom: 13px; }
+
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 10px; }
+
+  @media (max-width: 430px) {
+    .form-grid { grid-template-columns: 1fr; }
+  }
+
+  .field { display: block; margin-bottom: 10px; }
+
+  .field > span {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 5px;
+  }
+
+  .field input,
+  .field select {
+    width: 100%;
+    font: inherit;
+    font-size: 16px;
+    padding: 11px 12px;
+    border-radius: 11px;
+    border: 1px solid var(--line-strong);
+    background: #fffdf8;
+    color: var(--ink);
+    min-height: 48px;
+  }
+
+  .field input:focus,
+  .field select:focus {
+    outline: none;
+    border-color: var(--honey);
+    box-shadow: 0 0 0 3px rgba(232, 161, 28, 0.18);
+  }
+
+  .form-actions { display: flex; gap: 9px; margin-top: 6px; }
+  .form-actions .btn { flex: 1; }
+
+  .hint { font-size: 0.7rem; color: var(--muted); margin: 2px 0 12px; line-height: 1.45; }
+
+  .empty {
+    text-align: center;
+    padding: 26px 16px;
+    border: 1px dashed var(--line-strong);
+    border-radius: 14px;
+    color: var(--muted);
+    font-size: 0.86rem;
+    background: rgba(255, 255, 255, 0.45);
+    margin-bottom: 11px;
+  }
+
+  .banner {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    padding: 12px 14px;
+    border-radius: 14px;
+    margin-bottom: 14px;
+    font-size: 0.84rem;
+    border: 1px solid;
+  }
+
+  .banner.warn { background: #fdf3d8; border-color: #ecd28a; color: #6d4d00; }
+
+  .sub-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin: 20px 0 10px;
+  }
+
+  .sub-head:first-child { margin-top: 0; }
+  .sub-head h3 { font-size: 0.95rem; }
+  .sub-head .btn { flex: none; }
+  .muted-note { font-size: 0.7rem; color: var(--muted); }
+
+  .seg {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;
+    background: #ece3d2;
+    border-radius: 12px;
+    padding: 4px;
+    margin-bottom: 16px;
+  }
+
+  .seg-btn {
+    min-height: 42px;
+    border: 0;
+    border-radius: 9px;
+    background: transparent;
+    font: inherit;
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--muted);
+    cursor: pointer;
+  }
+
+  .seg-btn.active {
+    background: var(--card);
+    color: var(--ink);
+    box-shadow: 0 2px 8px rgba(80, 60, 20, 0.14);
+  }
+
+  .money-row { display: flex; justify-content: space-between; gap: 10px; align-items: flex-start; }
+
+  .row-end { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex: none; }
+
+  .amount { font-weight: 800; font-size: 0.92rem; white-space: nowrap; }
+  .amount.neg { color: var(--red); }
+  .amount.pos { color: var(--green); }
+
+  .stock-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 12px;
+    padding-top: 11px;
+    border-top: 1px dashed var(--line);
+  }
+
+  .round-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 1px solid var(--line-strong);
+    background: #fff;
+    color: var(--ink);
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    flex: none;
+  }
+
+  .round-btn svg { width: 18px; height: 18px; }
+
+  .stock-qty { font-size: 1.25rem; font-weight: 800; letter-spacing: -0.02em; }
+  .stock-qty span { font-size: 0.75rem; font-weight: 600; color: var(--muted); }
+
+  .app-foot {
+    margin-top: 34px;
+    padding-top: 20px;
+    border-top: 1px solid var(--line);
+    text-align: center;
+    font-size: 0.74rem;
+    color: var(--muted);
+  }
+
+  .link-danger {
+    margin-top: 10px;
+    background: none;
+    border: 0;
+    color: var(--red);
+    font: inherit;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-decoration: underline;
+    cursor: pointer;
+    padding: 8px;
+  }
+
+  .bottom-nav {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 30;
+    background: rgba(255, 253, 248, 0.96);
+    backdrop-filter: blur(14px);
+    border-top: 1px solid var(--line);
+    padding-bottom: var(--safe);
+  }
+
+  .bottom-nav-inner {
+    max-width: 760px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+  }
+
+  .nav-btn {
+    appearance: none;
+    border: 0;
+    background: none;
+    padding: 8px 2px 9px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    color: var(--muted);
+    font-size: 0.63rem;
+    font-weight: 700;
+    cursor: pointer;
+    min-height: 58px;
+  }
+
+  .nav-btn svg { width: 22px; height: 22px; }
+  .nav-btn.active { color: var(--honey-ink); box-shadow: inset 0 3px 0 var(--honey); }
+  .nav-btn.active svg { color: var(--honey); }
+
+  .toast {
+    position: fixed;
+    left: 50%;
+    bottom: calc(78px + var(--safe));
+    transform: translate(-50%, 16px);
+    background: #2c2217;
+    color: #fff8ec;
+    padding: 11px 18px;
+    border-radius: 999px;
+    font-size: 0.83rem;
+    font-weight: 600;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.22s ease, transform 0.22s ease;
+    z-index: 60;
+    max-width: 90vw;
+    text-align: center;
+  }
+
+  .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+  :focus-visible { outline: 2px solid var(--honey); outline-offset: 2px; }
+
+  @media (max-width: 380px) {
+    .top-actions .btn span { display: none; }
+    .top-actions .btn { padding: 0 12px; }
+    .module-head h2 { font-size: 1.2rem; }
+    .btn.small { padding: 0 10px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <h1>Stupina mea</h1>
+      <p id="saveStatus">Salvare automată activă</p>
+    </div>
+    <div class="top-actions">
+      <button type="button" class="btn small ghost" id="btnExport" title="Exportă backup JSON">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/>
+        </svg>
+        <span>Export</span>
+      </button>
+      <label class="btn small ghost" for="importFile" title="Importă backup JSON">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 21V9"/><path d="m7 14 5-5 5 5"/><path d="M5 3h14"/>
+        </svg>
+        <span>Import</span>
+      </label>
+      <input type="file" id="importFile" accept=".json,application/json" hidden>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <section id="tab-hives" class="tab-panel active">
+    <div class="module-head">
+      <div>
+        <span class="kicker">Modul 1</span>
+        <h2>Stupi &amp; familii</h2>
+      </div>
+      <button class="btn primary small" type="button" data-add="hives">+ Stup</button>
+    </div>
+
+    <div id="hivesSummary"></div>
+
+    <form id="hivesForm" class="form-card hidden">
+      <h3 class="form-title">Adaugă stup</h3>
+      <input type="hidden" name="id">
+      <div class="form-grid">
+        <label class="field"><span>Număr stup</span><input name="number" type="number" min="1" step="1" inputmode="numeric" required></label>
+        <label class="field"><span>Vatră</span>
+          <select name="vatra">
+            <option>Staționar</option>
+            <option>Pastoral</option>
+          </select>
+        </label>
+        <label class="field"><span>Tip ladă</span>
+          <select name="hiveType">
+            <option>Dadant 10 rame</option>
+            <option>Dadant 12 rame</option>
+            <option>MER</option>
+            <option>Orizontal</option>
+          </select>
+        </label>
+        <label class="field"><span>Stare familie</span>
+          <select name="state">
+            <option>Puternică</option>
+            <option>Medie</option>
+            <option>Slabă</option>
+            <option>Orfană</option>
+          </select>
+        </label>
+        <label class="field"><span>An matcă</span><input name="year" type="number" min="2000" max="2100" step="1" inputmode="numeric"></label>
+        <label class="field"><span>Culoare matcă</span>
+          <select name="queenColor">
+            <option>Alb</option>
+            <option>Galben</option>
+            <option>Roșu</option>
+            <option>Verde</option>
+            <option>Albastru</option>
+          </select>
+        </label>
+        <label class="field"><span>Rame cu puiet</span><input name="broodFrames" type="number" min="0" step="1" inputmode="numeric" value="0"></label>
+        <label class="field"><span>Rame cu miere</span><input name="honeyFrames" type="number" min="0" step="1" inputmode="numeric" value="0"></label>
+      </div>
+      <label class="field"><span>Observații</span><input name="notes" type="text" placeholder="opțional"></label>
+      <div class="form-actions">
+        <button class="btn ghost" type="button" data-cancel="hives">Anulează</button>
+        <button class="btn primary" type="submit">Salvează</button>
+      </div>
+    </form>
+
+    <div id="hivesList"></div>
+  </section>
+
+  <section id="tab-treatments" class="tab-panel">
+    <div class="module-head">
+      <div>
+        <span class="kicker">Modul 2</span>
+        <h2>Tratamente &amp; sănătate</h2>
+      </div>
+      <button class="btn primary small" type="button" data-add="treatments">+ Tratament</button>
+    </div>
+
+    <div id="waitBanner"></div>
+    <div id="treatmentsSummary"></div>
+
+    <div id="remindersWrap" class="hidden">
+      <div class="sub-head">
+        <h3>Memento rapel</h3>
+        <span class="muted-note">automat la 7 zile</span>
+      </div>
+      <div id="reminders"></div>
+    </div>
+
+    <form id="treatmentsForm" class="form-card hidden">
+      <h3 class="form-title">Adaugă tratament</h3>
+      <input type="hidden" name="id">
+      <label class="field"><span>Produs</span><select name="product" data-fill="products"></select></label>
+      <label class="field hidden" data-custom-product><span>Produs personalizat</span><input name="customProduct" type="text" placeholder="ex: produs propriu"></label>
+      <label class="field"><span>Dozaj / benzi / administrări</span><input name="dosage" type="text" placeholder="ex: 2 benzi, 5 ml, 1 fiolă"></label>
+      <div class="form-grid">
+        <label class="field"><span>Data aplicării</span><input name="date" type="date" required></label>
+        <label class="field"><span>Stup</span><select name="hiveId" data-hives></select></label>
+        <label class="field"><span>Rapel după (zile)</span><input name="repeatDays" type="number" min="0" step="1" inputmode="numeric" value="7"></label>
+        <label class="field"><span>Răgaz recoltare (zile)</span><input name="waitDays" type="number" min="0" step="1" inputmode="numeric" value="0"></label>
+      </div>
+      <label class="field"><span>Notă</span><input name="notes" type="text" placeholder="opțional"></label>
+      <p class="hint">Răgazul de recoltare este orientativ. Respectă întotdeauna prospectul produsului.</p>
+      <div class="form-actions">
+        <button class="btn ghost" type="button" data-cancel="treatments">Anulează</button>
+        <button class="btn primary" type="submit">Salvează</button>
+      </div>
+    </form>
+
+    <div class="sub-head"><h3>Jurnal tratamente</h3></div>
+    <div id="treatmentsList"></div>
+  </section>
+
+  <section id="tab-feedings" class="tab-panel">
+    <div class="module-head">
+      <div>
+        <span class="kicker">Modul 3</span>
+        <h2>Hrănire &amp; suplimente</h2>
+      </div>
+      <button class="btn primary small" type="button" data-add="feedings">+ Hrănire</button>
+    </div>
+
+    <div id="feedingsSummary"></div>
+    <div id="feedingBreakdown"></div>
+
+    <form id="feedingsForm" class="form-card hidden">
+      <h3 class="form-title">Adaugă hrănire</h3>
+      <input type="hidden" name="id">
+      <label class="field"><span>Tip hrană</span><select name="type" data-fill="feeds"></select></label>
+      <div class="form-grid">
+        <label class="field"><span>Cantitate</span><input name="qty" type="number" min="0" step="0.1" inputmode="decimal" required></label>
+        <label class="field"><span>Unitate</span>
+          <select name="unit">
+            <option>litri</option>
+            <option>kg</option>
+            <option>buc</option>
+          </select>
+        </label>
+        <label class="field"><span>Data</span><input name="date" type="date" required></label>
+        <label class="field"><span>Stup</span><select name="hiveId" data-hives></select></label>
+      </div>
+      <label class="field"><span>Notă</span><input name="notes" type="text" placeholder="opțional"></label>
+      <div class="form-actions">
+        <button class="btn ghost" type="button" data-cancel="feedings">Anulează</button>
+        <button class="btn primary" type="submit">Salvează</button>
+      </div>
+    </form>
+
+    <div class="sub-head"><h3>Jurnal hrăniri</h3></div>
+    <div id="feedingsList"></div>
+  </section>
+
+  <section id="tab-harvests" class="tab-panel">
+    <div class="module-head">
+      <div>
+        <span class="kicker">Modul 4</span>
+        <h2>Recolte &amp; produse</h2>
+      </div>
+      <button class="btn primary small" type="button" data-add="harvests">+ Recoltă</button>
+    </div>
+
+    <div id="harvestsSummary"></div>
+    <div id="harvestBreakdown"></div>
+
+    <form id="harvestsForm" class="form-card hidden">
+      <h3 class="form-title">Adaugă recoltă</h3>
+      <input type="hidden" name="id">
+      <label class="field"><span>Sortiment</span><select name="product" data-fill="harvest"></select></label>
+      <div class="form-grid">
+        <label class="field"><span>Cantitate</span><input name="qty" type="number" min="0" step="0.1" inputmode="decimal" required></label>
+        <label class="field"><span>Unitate</span>
+          <select name="unit">
+            <option>kg</option>
+            <option>buc</option>
+            <option>litri</option>
+          </select>
+        </label>
+        <label class="field"><span>Data</span><input name="date" type="date" required></label>
+        <label class="field"><span>Vatră</span>
+          <select name="vatra">
+            <option>Staționar</option>
+            <option>Pastoral</option>
+          </select>
+        </label>
+      </div>
+      <label class="field"><span>Notă</span><input name="notes" type="text" placeholder="opțional"></label>
+      <div class="form-actions">
+        <button class="btn ghost" type="button" data-cancel="harvests">Anulează</button>
+        <button class="btn primary" type="submit">Salvează</button>
+      </div>
+    </form>
+
+    <div class="sub-head"><h3>Jurnal recoltări</h3></div>
+    <div id="harvestsList"></div>
+  </section>
+
+  <section id="tab-store" class="tab-panel">
+    <div class="module-head">
+      <div>
+        <span class="kicker">Modul 5</span>
+        <h2>Magazie &amp; financiar</h2>
+      </div>
+    </div>
+
+    <div class="seg">
+      <button class="seg-btn active" type="button" data-seg="stock">Magazie</button>
+      <button class="seg-btn" type="button" data-seg="finance">Financiar</button>
+    </div>
+
+    <div id="stockPanel">
+      <div class="sub-head">
+        <h3>Stoc materiale</h3>
+        <button class="btn primary small" type="button" data-add="stock">+ Material</button>
+      </div>
+      <div id="stockSummary"></div>
+
+      <form id="stockForm" class="form-card hidden">
+        <h3 class="form-title">Adaugă material</h3>
+        <input type="hidden" name="id">
+        <label class="field"><span>Material</span><input name="name" type="text" placeholder="ex: rame crescute, faguri artificiali" required></label>
+        <div class="form-grid">
+          <label class="field"><span>Cantitate</span><input name="qty" type="number" min="0" step="0.1" inputmode="decimal" required></label>
+          <label class="field"><span>Unitate</span>
+            <select name="unit">
+              <option>buc</option>
+              <option>kg</option>
+              <option>litri</option>
+              <option>set</option>
+            </select>
+          </label>
+          <label class="field"><span>Prag minim</span><input name="minQty" type="number" min="0" step="0.1" inputmode="decimal" placeholder="opțional"></label>
+        </div>
+        <div class="form-actions">
+          <button class="btn ghost" type="button" data-cancel="stock">Anulează</button>
+          <button class="btn primary" type="submit">Salvează</button>
+        </div>
+      </form>
+
+      <div id="stockList"></div>
+    </div>
+
+    <div id="financePanel" class="hidden">
+      <div id="financeSummary"></div>
+
+      <div class="sub-head">
+        <h3>Cheltuieli</h3>
+        <button class="btn ghost small" type="button" data-add="expenses">+ Cheltuială</button>
+      </div>
+
+      <form id="expenseForm" class="form-card hidden">
+        <h3 class="form-title">Adaugă cheltuială</h3>
+        <input type="hidden" name="id">
+        <label class="field"><span>Categorie</span><select name="category" data-fill="expenseCats"></select></label>
+        <div class="form-grid">
+          <label class="field"><span>Data</span><input name="date" type="date" required></label>
+          <label class="field"><span>Sumă (lei)</span><input name="amount" type="number" min="0" step="0.01" inputmode="decimal" required></label>
+        </div>
+        <label class="field"><span>Descriere</span><input name="description" type="text" placeholder="ex: 50 kg zahăr"></label>
+        <div class="form-actions">
+          <button class="btn ghost" type="button" data-cancel="expenses">Anulează</button>
+          <button class="btn primary" type="submit">Salvează</button>
+        </div>
+      </form>
+
+      <div id="expenseList"></div>
+
+      <div class="sub-head">
+        <h3>Vânzări</h3>
+        <button class="btn ghost small" type="button" data-add="sales">+ Vânzare</button>
+      </div>
+
+      <form id="saleForm" class="form-card hidden">
+        <h3 class="form-title">Adaugă vânzare</h3>
+        <input type="hidden" name="id">
+        <label class="field"><span>Produs</span><input name="product" type="text" list="saleProducts" placeholder="ex: miere salcâm" required></label>
+        <datalist id="saleProducts"></datalist>
+        <div class="form-grid">
+          <label class="field"><span>Cantitate</span><input name="qty" type="number" min="0" step="0.1" inputmode="decimal"></label>
+          <label class="field"><span>Unitate</span>
+            <select name="unit">
+              <option>kg</option>
+              <option>buc</option>
+              <option>litri</option>
+            </select>
+          </label>
+          <label class="field"><span>Data</span><input name="date" type="date" required></label>
+          <label class="field"><span>Încasat (lei)</span><input name="amount" type="number" min="0" step="0.01" inputmode="decimal" required></label>
+        </div>
+        <label class="field"><span>Notă</span><input name="notes" type="text" placeholder="opțional"></label>
+        <div class="form-actions">
+          <button class="btn ghost" type="button" data-cancel="sales">Anulează</button>
+          <button class="btn primary" type="submit">Salvează</button>
+        </div>
+      </form>
+
+      <div id="saleList"></div>
+    </div>
+  </section>
+
+  <footer class="app-foot">
+    <p>Datele sunt salvate local, în acest telefon. Fă backup periodic.</p>
+    <button class="link-danger" type="button" id="resetAll">Șterge toate datele</button>
+  </footer>
+
+</main>
+
+<nav class="bottom-nav" aria-label="Module">
+  <div class="bottom-nav-inner">
+    <button class="nav-btn active" type="button" data-tab="hives" aria-current="page">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M12 2l8 4.5v11L12 22l-8-4.5v-11z"/><path d="M9 9h6v6H9z"/>
+      </svg>
+      <span>Stupi</span>
+    </button>
+    <button class="nav-btn" type="button" data-tab="treatments">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M12 3l8 3v6c0 4-3.4 7.4-8 9-4.6-1.6-8-5-8-9V6z"/><path d="M12 8v6M9 11h6"/>
+      </svg>
+      <span>Tratamente</span>
+    </button>
+    <button class="nav-btn" type="button" data-tab="feedings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M12 3s6 6.3 6 10.5A6 6 0 0 1 6 13.5C6 9.3 12 3 12 3z"/>
+      </svg>
+      <span>Hrănire</span>
+    </button>
+    <button class="nav-btn" type="button" data-tab="harvests">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M8 3h8"/><path d="M9 3v2h6V3"/><rect x="6" y="7" width="12" height="14" rx="3"/><path d="M6 12h12"/>
+      </svg>
+      <span>Recolte</span>
+    </button>
+    <button class="nav-btn" type="button" data-tab="store">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M3 8l9-4 9 4-9 4z"/><path d="M3 8v8l9 4 9-4V8"/><path d="M12 12v8"/>
+      </svg>
+      <span>Magazie</span>
+    </button>
+  </div>
+</nav>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function () {
+  'use strict';
+
+  var KEY = 'stupina.v1';
+
+  var PRODUCTS = [
+    { name: 'Varachet Forte', repeat: 7, wait: 30 },
+    { name: 'Mavrirol', repeat: 7, wait: 30 },
+    { name: 'ApiLife Var', repeat: 7, wait: 0 },
+    { name: 'Formic Pro', repeat: 7, wait: 0 },
+    { name: 'Acid oxalic – picurare', repeat: 0, wait: 0 },
+    { name: 'Acid oxalic – sublimare', repeat: 0, wait: 0 },
+    { name: 'Acid formic', repeat: 7, wait: 0 },
+    { name: 'Timol', repeat: 7, wait: 0 },
+    { name: 'Protofil', repeat: 0, wait: 0 },
+    { name: 'Nosevit', repeat: 0, wait: 0 }
+  ];
+
+  var FEEDS = [
+    { name: 'Sirop de stimulare 1:1', unit: 'litri' },
+    { name: 'Sirop de completare 3:2', unit: 'litri' },
+    { name: 'Sirop invertit', unit: 'litri' },
+    { name: 'Turtă energetică (Apifonda / zahăr pudră)', unit: 'kg' },
+    { name: 'Turtă proteică (polen / drojdii)', unit: 'kg' },
+    { name: 'Suplimente vitamine (Startovit / ApiHerb)', unit: 'litri' }
+  ];
+
+  var HARVEST_PRODUCTS = [
+    { name: 'Rapiță', unit: 'kg', honey: true },
+    { name: 'Salcâm', unit: 'kg', honey: true },
+    { name: 'Tei', unit: 'kg', honey: true },
+    { name: 'Floarea-soarelui', unit: 'kg', honey: true },
+    { name: 'Polifloră', unit: 'kg', honey: true },
+    { name: 'Mană', unit: 'kg', honey: true },
+    { name: 'Polen', unit: 'kg', honey: false },
+    { name: 'Propolis', unit: 'kg', honey: false },
+    { name: 'Ceară', unit: 'kg', honey: false },
+    { name: 'Roiuri', unit: 'buc', honey: false }
+  ];
+
+  var EXPENSE_CATS = [
+    'Tratamente',
+    'Zahăr / sirop',
+    'Motorină pastoral',
+    'Faguri / rame',
+    'Alte cheltuieli'
+  ];
+
+  var QUEEN_MAP = { 0: 'Albastru', 1: 'Alb', 2: 'Galben', 3: 'Roșu', 4: 'Verde', 5: 'Albastru', 6: 'Alb', 7: 'Galben', 8: 'Roșu', 9: 'Verde' };
+  var QC_CLASS = { 'Alb': 'alb', 'Galben': 'galben', 'Roșu': 'rosu', 'Verde': 'verde', 'Albastru': 'albastru' };
+  var STATE_CLASS = { 'Puternică': 'ok', 'Medie': 'warn', 'Slabă': 'bad', 'Orfană': 'bad' };
+
+  var FORM = {
+    hives: 'hivesForm',
+    treatments: 'treatmentsForm',
+    feedings: 'feedingsForm',
+    harvests: 'harvestsForm',
+    stock: 'stockForm',
+    expenses: 'expenseForm',
+    sales: 'saleForm'
+  };
+
+  var LABELS = {
+    hives: 'stupul',
+    treatments: 'tratamentul',
+    feedings: 'hrănirea',
+    harvests: 'recolta',
+    stock: 'materialul',
+    expenses: 'cheltuiala',
+    sales: 'vânzarea'
+  };
+
+  var ICONS = {
+    edit: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>',
+    del: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>',
+    plus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>',
+    minus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14"/></svg>'
+  };
+
+  var nf = new Intl.NumberFormat('ro-RO', { maximumFractionDigits: 1 });
+  var mf = new Intl.NumberFormat('ro-RO', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+  var db = emptyDB();
+  var toastTimer = null;
+
+  function emptyDB() {
+    return { version: 1, hives: [], treatments: [], feedings: [], harvests: [], stock: [], expenses: [], sales: [] };
+  }
+
+  function $(sel) { return document.querySelector(sel); }
+  function pad(n) { return String(n).padStart(2, '0'); }
+  function num(v) { var n = parseFloat(v); return Number.isFinite(n) ? n : 0; }
+  function sum(arr) { return arr.reduce(function (a, b) { return a + num(b); }, 0); }
+  function str(v) { return v == null ? '' : String(v).trim(); }
+
+  function esc(v) {
+    return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  function fmtNum(v) { return nf.format(num(v)); }
+  function money(v) { return mf.format(num(v)) + ' lei'; }
+
+  function uid() {
+    if (window.crypto && typeof crypto.randomUUID === 'function') return crypto.randomUUID();
+    return 'id-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 9);
+  }
+
+  function toISO(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+  function today() { return toISO(new Date()); }
+
+  function parseISO(s) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(String(s || ''))) return null;
+    var p = String(s).split('-').map(Number);
+    return new Date(p[0], p[1] - 1, p[2]);
+  }
+
+  function addDays(iso, n) {
+    var d = parseISO(iso);
+    if (!d) return iso;
+    d.setDate(d.getDate() + Number(n || 0));
+    return toISO(d);
+  }
+
+  function dayNum(iso) {
+    var d = parseISO(iso);
+    if (!d) return null;
+    return Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / 86400000;
+  }
+
+  function diffDays(a, b) {
+    var A = dayNum(a), B = dayNum(b);
+    if (A === null || B === null) return 0;
+    return B - A;
+  }
+
+  function fmtDate(iso) {
+    var d = parseISO(iso);
+    if (!d) return '—';
+    return pad(d.getDate()) + '.' + pad(d.getMonth() + 1) + '.' + d.getFullYear();
+  }
+
+  function queenColorForYear(year) {
+    var y = parseInt(year, 10);
+    if (!Number.isFinite(y)) return '';
+    return QUEEN_MAP[Math.abs(y) % 10] || '';
+  }
+
+  function stats(items) {
+    return '<div class="stats">' + items.map(function (i) {
+      return '<div class="stat ' + (i.tone || '') + '"><b>' + i.value + '</b><span>' + esc(i.label) + '</span></div>';
+    }).join('') + '</div>';
+  }
+
+  function empty(msg) {
+    return '<div class="empty">' + esc(msg) + '</div>';
+  }
+
+  function hiveLabel(id) {
+    if (!id) return 'Toată stupina';
+    var h = db.hives.find(function (x) { return x.id === id; });
+    return h ? 'Stup ' + h.number : 'Stup șters';
+  }
+
+  function loadDB() {
+    try {
+      var raw = localStorage.getItem(KEY);
+      if (!raw) return emptyDB();
+      return normalizeDB(JSON.parse(raw));
+    } catch (err) {
+      return emptyDB();
+    }
+  }
+
+  function normalizeDB(raw) {
+    var base = emptyDB();
+    if (!raw || typeof raw !== 'object') return base;
+    ['hives', 'treatments', 'feedings', 'harvests', 'stock', 'expenses', 'sales'].forEach(function (k) {
+      if (Array.isArray(raw[k])) {
+        base[k] = raw[k].filter(function (x) { return x && typeof x === 'object'; }).map(function (x) {
+          if (!x.id) x.id = uid();
+          return x;
+        });
+      }
+    });
+    return base;
+  }
+
+  function save() {
+    try {
+      localStorage.setItem(KEY, JSON.stringify(db));
+      var t = new Date().toLocaleTimeString('ro-RO', { hour: '2-digit', minute: '2-digit' });
+      setStatus('Salvat automat · ' + t);
+    } catch (err) {
+      setStatus('Eroare la salvare');
+      toast('Salvarea a eșuat. Verifică spațiul liber.');
+    }
+  }
+
+  function setStatus(msg) {
+    var el = $('#saveStatus');
+    if (el) el.textContent = msg;
+  }
+
+  function toast(msg) {
+    var el = $('#toast');
+    if (!el) return;
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { el.classList.remove('show'); }, 2200);
+  }
+
+  function fillStaticSelects() {
+    document.querySelectorAll('select[data-fill="products"]').forEach(function (sel) {
+      sel.innerHTML = PRODUCTS.map(function (p) {
+        return '<option value="' + esc(p.name) + '">' + esc(p.name) + '</option>';
+      }).join('') + '<option value="__custom">Personalizat…</option>';
+    });
+
+    document.querySelectorAll('select[data-fill="feeds"]').forEach(function (sel) {
+      sel.innerHTML = FEEDS.map(function (f) {
+        return '<option value="' + esc(f.name) + '">' + esc(f.name) + '</option>';
+      }).join('');
+    });
+
+    document.querySelectorAll('select[data-fill="harvest"]').forEach(function (sel) {
+      sel.innerHTML = HARVEST_PRODUCTS.map(function (p) {
+        return '<option value="' + esc(p.name) + '">' + esc(p.name) + '</option>';
+      }).join('');
+    });
+
+    document.querySelectorAll('select[data-fill="expenseCats"]').forEach(function (sel) {
+      sel.innerHTML = EXPENSE_CATS.map(function (c) {
+        return '<option value="' + esc(c) + '">' + esc(c) + '</option>';
+      }).join('');
+    });
+
+    var dl = document.getElementById('saleProducts');
+    if (dl) {
+      dl.innerHTML = HARVEST_PRODUCTS.map(function (p) {
+        return '<option value="' + esc(p.name) + '"></option>';
+      }).join('') + '<option value="Mixt"></option>';
+    }
+  }
+
+  function fillHiveSelects() {
+    var hives = db.hives.slice().sort(function (a, b) { return num(a.number) - num(b.number); });
+    document.querySelectorAll('select[data-hives]').forEach(function (sel) {
+      var current = sel.value;
+      sel.innerHTML = '<option value="">Toată stupina</option>' + hives.map(function (h) {
+        return '<option value="' + esc(h.id) + '">Stup ' + esc(h.number) + '</option>';
+      }).join('');
+      if (current && hives.some(function (h) { return h.id === current; })) sel.value = current;
+    });
+  }
+
+  function hiveCard(h) {
+    var qc = QC_CLASS[h.queenColor];
+    var dot = qc ? '<span class="dot qc-' + qc + '" title="Culoare matcă ' + esc(h.queenColor) + '"></span>' : '';
+    return '<article class="card">' +
+      '<div class="card-top">' +
+        '<div class="hive-badge">#' + esc(h.number) + '</div>' +
+        '<div class="grow">' +
+          '<div class="card-title">Stup ' + esc(h.number) + ' ' + dot + '</div>' +
+          '<div class="chips">' +
+            '<span class="chip">' + esc(h.vatra || '—') + '</span>' +
+            '<span class="chip">' + esc(h.hiveType || '—') + '</span>' +
+            '<span class="chip state-' + (STATE_CLASS[h.state] || '') + '">' + esc(h.state || '—') + '</span>' +
+          '</div>' +
+        '</div>' +
+        '<div class="icon-actions">' +
+          '<button class="icon-btn" type="button" data-act="edit" data-module="hives" data-id="' + esc(h.id) + '" aria-label="Editează stupul">' + ICONS.edit + '</button>' +
+          '<button class="icon-btn danger" type="button" data-act="del" data-module="hives" data-id="' + esc(h.id) + '" aria-label="Șterge stupul">' + ICONS.del + '</button>' +
+        '</div>' +
+      '</div>' +
+      '<div class="mini-metrics">' +
+        '<div><b>' + fmtNum(h.broodFrames) + '</b><span>rame cu puiet</span></div>' +
+        '<div><b>' + fmtNum(h.honeyFrames) + '</b><span>rame cu miere</span></div>' +
+        '<div><b>' + esc(h.year || '—') + '</b><span>an matcă · ' + esc(h.queenColor || '—') + '</span></div>' +
+      '</div>' +
+      (h.notes ? '<p class="note">' + esc(h.notes) + '</p>' : '') +
+    '</article>';
+  }
+
+  function treatmentRow(t) {
+    var repeatDue = Number(t.repeatDays) > 0 ? addDays(t.date, t.repeatDays) : null;
+    var ready = addDays(t.date, Number(t.waitDays) || 0);
+    var left = diffDays(today(), ready);
+    var repeatText = '—';
+    var repeatClass = '';
+    if (repeatDue) {
+      if (t.repeatDone) {
+        repeatText = 'efectuat';
+        repeatClass = 'text-ok';
+      } else {
+        repeatText = fmtDate(repeatDue);
+        var rl = diffDays(today(), repeatDue);
+        repeatClass = rl <= 0 ? 'text-bad' : (rl <= 7 ? 'text-warn' : '');
+      }
+    }
+    var readyText = left > 0 ? fmtDate(ready) + ' · ' + left + ' z' : 'permisă';
+    var readyClass = left > 0 ? 'text-warn' : 'text-ok';
+    return '<article class="card compact">' +
+      '<div class="card-top">' +
+        '<div class="grow">' +
+          '<div class="card-title">' + esc(t.product) + '</div>' +
+          '<div class="chips">' +
+            '<span class="chip">' + esc(hiveLabel(t.hiveId)) + '</span>' +
+            '<span class="chip">' + fmtDate(t.date) + '</span>' +
+            (t.dosage ? '<span class="chip">' + esc(t.dosage) + '</span>' : '') +
+          '</div>' +
+        '</div>' +
+        '<div class="icon-actions">' +
+          '<button class="icon-btn" type="button" data-act="edit" data-module="treatments" data-id="' + esc(t.id) + '" aria-label="Editează tratamentul">' + ICONS.edit + '</button>' +
+          '<button class="icon-btn danger" type="button" data-act="del" data-module="treatments" data-id="' + esc(t.id) + '" aria-label="Șterge tratamentul">' + ICONS.del + '</button>' +
+        '</div>' +
+      '</div>' +
+      '<div class="info-grid">' +
+        '<div><span>Rapel</span><b class="' + repeatClass + '">' + repeatText + '</b></div>' +
+        '<div><span>Recoltare</span><b class="' + readyClass + '">' + readyText + '</b></div>' +
+      '</div>' +
+      (t.notes ? '<p class="note">' + esc(t.notes) + '</p>' : '') +
+    '</article>';
+  }
+
+  function reminderCard(r) {
+    var t = r.t;
+    var d = diffDays(today(), r.due);
+    var tone = d < 0 ? 'bad' : 'warn';
+    var text = d < 0 ? 'Restant de ' + (-d) + ' z' : (d === 0 ? 'Scadent azi' : 'În ' + d + ' zile');
+    return '<article class="card compact">' +
+      '<div class="card-top">' +
+        '<div class="grow">' +
+          '<div class="card-title">' + esc(t.product) + '</div>' +
+          '<div class="chips">' +
+            '<span class="chip">' + esc(hiveLabel(t.hiveId)) + '</span>' +
+            '<span class="chip state-' + tone + '">' + text + '</span>' +
+            '<span class="chip">' + fmtDate(r.due) + '</span>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="form-actions">' +
+        '<button class="btn small ghost" type="button" data-act="done" data-module="treatments" data-id="' + esc(t.id) + '">Efectuat</button>' +
+        '<button class="btn small primary" type="button" data-act="repeat" data-module="treatments" data-id="' + esc(t.id) + '">Programează rapel</button>' +
+      '</div>' +
+    '</article>';
+  }
+
+  function feedingRow(f) {
+    return '<article class="card compact">' +
+      '<div class="card-top">' +
+        '<div class="grow">' +
+          '<div class="card-title">' + esc(f.type) + '</div>' +
+          '<div class="chips">' +
+            '<span class="chip">' + esc(hiveLabel(f.hiveId)) + '</span>' +
+            '<span class="chip">' + fmtDate(f.date) + '</span>' +
+            '<span class="chip">' + fmtNum(f.qty) + ' ' + esc(f.unit) + '</span>' +
+          '</div>' +
+        '</div>' +
+        '<div class="icon-actions">' +
+          '<button class="icon-btn" type="button" data-act="edit" data-module="feedings" data-id="' + esc(f.id) + '" aria-label="Editează hrănirea">' + ICONS.edit + '</button>' +
+          '<button class="icon-btn danger" type="button" data-act="del" data-module="feedings" data-id="' + esc(f.id) + '" aria-label="Șterge hrănirea">' + ICONS.del + '</button>' +
+        '</div>' +
+      '</div>' +
+      (f.notes ? '<p class="note">' + esc(f.notes) + '</p>' : '') +
+    '</article>';
+  }
+
+  function harvestRow(h) {
+    return '<article class="card compact">' +
+      '<div class="card-top">' +
+        '<div class="grow">' +
+          '<div class="card-title">' + esc(h.product) + '</div>' +
+          '<div class="chips">' +
+            '<span class="chip">' + fmtNum(h.qty) + ' ' + esc(h.unit) + '</span>' +
+            '<span class="chip">' + esc(h.vatra || '—') + '</span>' +
+            '<span class="chip">' + fmtDate(h.date) + '</span>' +
+          '</div>' +
+        '</div>' +
+        '<div class="icon-actions">' +
+          '<button class="icon-btn" type="button" data-act="edit" data-module="harvests" data-id="' + esc(h.id) + '" aria-label="Editează recolta">' + ICONS.edit + '</button>' +
+          '<button class="icon-btn danger" type="button" data-act="del" data-module="harvests" data-id="' + esc(h.id) + '" aria-label="Șterge recolta">' + ICONS.del + '</button>' +
+        '</div>' +
+      '</div>' +
+      (h.notes ? '<p class="note">' + esc(h.notes) + '</p>' : '') +
+    '</article>';
+  }
+
+  function stockRow(s) {
+    var low = Number(s.minQty) > 0 && num(s.qty) <= Number(s.minQty);
+    return '<article class="card compact">' +
+      '<div class="card-top">' +
+        '<div class="grow">' +
+          '<div class="card-title">' + esc(s.name) + '</div>' +
+          '<div class="chips">' +
+            '<span class="chip">' + esc(s.unit) + '</span>' +
+            (Number(s.minQty) > 0 ? '<span class="chip">min ' + fmtNum(s.minQty) + '</span>' : '') +
+            (low ? '<span class="chip state-bad">Sub minim</span>' : '') +
+          '</div>' +
+        '</div>' +
+        '<div class="icon-actions">' +
+          '<button class="icon-btn" type="button" data-act="edit" data-module="stock" data-id="' + esc(s.id) + '" aria-label="Editează materialul">' + ICONS.edit + '</button>' +
+          '<button class="icon-btn danger" type="button" data-act="del" data-module="stock" data-id="' + esc(s.id) + '" aria-label="Șterge materialul">' + ICONS.del + '</button>' +
+        '</div>' +
+      '</div>' +
+      '<div class="stock-controls">' +
+        '<button class="round-btn" type="button" data-act="dec" data-module="stock" data-id="' + esc(s.id) + '" aria-label="Scade o unitate">' + ICONS.minus + '</button>' +
+        '<div class="stock-qty">' + fmtNum(s.qty) + ' <span>' + esc(s.unit) + '</span></div>' +
+        '<button class="round-btn" type="button" data-act="inc" data-module="stock" data-id="' + esc(s.id) + '" aria-label="Adaugă o unitate">' + ICONS.plus + '</button>' +
+      '</div>' +
+    '</article>';
+  }
+
+  function expenseRow(e) {
+    return '<article class="card compact">' +
+      '<div class="money-row">' +
+        '<div class="grow">' +
+          '<div class="card-title">' + esc(e.description || e.category) + '</div>' +
+          '<div class="chips">' +
+            '<span class="chip">' + esc(e.category) + '</span>' +
+            '<span class="chip">' + fmtDate(e.date) + '</span>' +
+          '</div>' +
+        '</div>' +
+        '<div class="row-end">' +
+          '<div class="amount neg">- ' + money(e.amount) + '</div>' +
+          '<div class="icon-actions">' +
+            '<button class="icon-btn" type="button" data-act="edit" data-module="expenses" data-id="' + esc(e.id) + '" aria-label="Editează cheltuiala">' + ICONS.edit + '</button>' +
+            '<button class="icon-btn danger" type="button" data-act="del" data-module="expenses" data-id="' + esc(e.id) + '" aria-label="Șterge cheltuiala">' + ICONS.del + '</button>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+    '</article>';
+  }
+
+  function saleRow(s) {
+    var qty = num(s.qty) > 0 ? fmtNum(s.qty) + ' ' + esc(s.unit) : '';
+    return '<article class="card compact">' +
+      '<div class="money-row">' +
+        '<div class="grow">' +
+          '<div class="card-title">' + esc(s.product) + '</div>' +
+          '<div class="chips">' +
+            (qty ? '<span class="chip">' + qty + '</span>' : '') +
+            '<span class="chip">' + fmtDate(s.date) + '</span>' +
+          '</div>' +
+        '</div>' +
+        '<div class="row-end">' +
+          '<div class="amount pos">+ ' + money(s.amount) + '</div>' +
+          '<div class="icon-actions">' +
+            '<button class="icon-btn" type="button" data-act="edit" data-module="sales" data-id="' + esc(s.id) + '" aria-label="Editează vânzarea">' + ICONS.edit + '</button>' +
+            '<button class="icon-btn danger" type="button" data-act="del" data-module="sales" data-id="' + esc(s.id) + '" aria-label="Șterge vânzarea">' + ICONS.del + '</button>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+      (s.notes ? '<p class="note">' + esc(s.notes) + '</p>' : '') +
+    '</article>';
+  }
+
+  function renderHives() {
+    var hives = db.hives.slice().sort(function (a, b) { return num(a.number) - num(b.number); });
+    var strong = hives.filter(function (h) { return h.state === 'Puternică'; }).length;
+    var weak = hives.filter(function (h) { return h.state === 'Slabă' || h.state === 'Orfană'; }).length;
+    var brood = sum(hives.map(function (h) { return h.broodFrames; }));
+
+    $('#hivesSummary').innerHTML = stats([
+      { value: hives.length, label: 'stupi' },
+      { value: strong, label: 'familii puternice', tone: 'ok' },
+      { value: weak, label: 'slabe / orfane', tone: weak ? 'bad' : '' },
+      { value: fmtNum(brood), label: 'rame cu puiet' }
+    ]);
+
+    $('#hivesList').innerHTML = hives.length ? hives.map(hiveCard).join('') : empty('Niciun stup adăugat încă.');
+    fillHiveSelects();
+  }
+
+  function renderTreatments() {
+    var list = db.treatments.slice().sort(function (a, b) { return String(b.date).localeCompare(String(a.date)); });
+
+    var reminders = db.treatments
+      .filter(function (t) { return Number(t.repeatDays) > 0 && !t.repeatDone; })
+      .map(function (t) { return { t: t, due: addDays(t.date, t.repeatDays) }; })
+      .filter(function (r) { return diffDays(today(), r.due) <= 7; })
+      .sort(function (a, b) { return a.due.localeCompare(b.due); });
+
+    var overdue = reminders.filter(function (r) { return diffDays(today(), r.due) <= 0; }).length;
+
+    var waits = db.treatments
+      .map(function (t) { return { t: t, ready: addDays(t.date, Number(t.waitDays) || 0) }; })
+      .filter(function (r) { return r.ready > today(); })
+      .sort(function (a, b) { return b.ready.localeCompare(a.ready); });
+
+    var banner = '';
+    if (waits.length) {
+      var max = waits[0].ready;
+      banner = '<div class="banner warn"><div><b>Răgaz de recoltare activ.</b> Nu recolta miere până la <b>' + fmtDate(max) + '</b> (' + diffDays(today(), max) + ' zile).</div></div>';
+    }
+    $('#waitBanner').innerHTML = banner;
+
+    $('#treatmentsSummary').innerHTML = stats([
+      { value: db.treatments.length, label: 'tratamente' },
+      { value: overdue, label: 'rapel scadent', tone: overdue ? 'bad' : '' },
+      { value: waits.length, label: 'răgazuri active', tone: waits.length ? 'warn' : '' }
+    ]);
+
+    $('#remindersWrap').classList.toggle('hidden', reminders.length === 0);
+    $('#reminders').innerHTML = reminders.map(reminderCard).join('');
+
+    $('#treatmentsList').innerHTML = list.length ? list.map(treatmentRow).join('') : empty('Niciun tratament înregistrat încă.');
+  }
+
+  function renderFeedings() {
+    var byUnit = {};
+    var byType = {};
+
+    db.feedings.forEach(function (f) {
+      byUnit[f.unit] = (byUnit[f.unit] || 0) + num(f.qty);
+      var k = f.type + '|' + f.unit;
+      if (!byType[k]) byType[k] = { type: f.type, unit: f.unit, qty: 0 };
+      byType[k].qty += num(f.qty);
+    });
+
+    var items = [{ value: db.feedings.length, label: 'hrăniri' }];
+    Object.keys(byUnit).forEach(function (u) {
+      items.push({ value: fmtNum(byUnit[u]), label: 'total ' + u });
+    });
+    $('#feedingsSummary').innerHTML = stats(items);
+
+    var chips = Object.keys(byType).map(function (k) {
+      var x = byType[k];
+      return '<span class="chip">' + esc(x.type) + ': ' + fmtNum(x.qty) + ' ' + esc(x.unit) + '</span>';
+    }).join('');
+    $('#feedingBreakdown').innerHTML = chips ? '<div class="card compact"><div class="chips">' + chips + '</div></div>' : '';
+
+    var list = db.feedings.slice().sort(function (a, b) { return String(b.date).localeCompare(String(a.date)); });
+    $('#feedingsList').innerHTML = list.length ? list.map(feedingRow).join('') : empty('Nicio hrănire înregistrată încă.');
+  }
+
+  function renderHarvests() {
+    var honeyNames = HARVEST_PRODUCTS.filter(function (p) { return p.honey; }).map(function (p) { return p.name; });
+    var honey = sum(db.harvests.filter(function (h) {
+      return honeyNames.indexOf(h.product) >= 0 && h.unit === 'kg';
+    }).map(function (h) { return h.qty; }));
+
+    var byProduct = {};
+    db.harvests.forEach(function (h) {
+      if (!byProduct[h.product]) byProduct[h.product] = { qty: 0, unit: h.unit };
+      byProduct[h.product].qty += num(h.qty);
+      byProduct[h.product].unit = h.unit;
+    });
+
+    $('#harvestsSummary').innerHTML = stats([
+      { value: fmtNum(honey) + ' kg', label: 'miere totală', tone: 'ok' },
+      { value: db.harvests.length, label: 'recoltări' },
+      { value: Object.keys(byProduct).length, label: 'produse' }
+    ]);
+
+    var chips = Object.keys(byProduct).map(function (name) {
+      var x = byProduct[name];
+      return '<span class="chip">' + esc(name) + ': ' + fmtNum(x.qty) + ' ' + esc(x.unit) + '</span>';
+    }).join('');
+    $('#harvestBreakdown').innerHTML = chips ? '<div class="card compact"><div class="chips">' + chips + '</div></div>' : '';
+
+    var list = db.harvests.slice().sort(function (a, b) { return String(b.date).localeCompare(String(a.date)); });
+    $('#harvestsList').innerHTML = list.length ? list.map(harvestRow).join('') : empty('Nicio recoltă înregistrată încă.');
+  }
+
+  function renderStock() {
+    var low = db.stock.filter(function (s) {
+      return Number(s.minQty) > 0 && num(s.qty) <= Number(s.minQty);
+    }).length;
+
+    $('#stockSummary').innerHTML = stats([
+      { value: db.stock.length, label: 'materiale' },
+      { value: low, label: 'sub prag minim', tone: low ? 'bad' : 'ok' }
+    ]);
+
+    var list = db.stock.slice().sort(function (a, b) {
+      return String(a.name).localeCompare(String(b.name), 'ro');
+    });
+    $('#stockList').innerHTML = list.length ? list.map(stockRow).join('') : empty('Magazia este goală. Adaugă primul material.');
+  }
+
+  function renderFinance() {
+    var expenses = sum(db.expenses.map(function (e) { return e.amount; }));
+    var sales = sum(db.sales.map(function (s) { return s.amount; }));
+    var profit = sales - expenses;
+
+    $('#financeSummary').innerHTML = stats([
+      { value: money(expenses), label: 'cheltuieli', tone: 'bad' },
+      { value: money(sales), label: 'vânzări', tone: 'ok' },
+      { value: money(profit), label: 'profit', tone: profit >= 0 ? 'ok' : 'bad' }
+    ]);
+
+    var ex = db.expenses.slice().sort(function (a, b) { return String(b.date).localeCompare(String(a.date)); });
+    var sa = db.sales.slice().sort(function (a, b) { return String(b.date).localeCompare(String(a.date)); });
+
+    $('#expenseList').innerHTML = ex.length ? ex.map(expenseRow).join('') : empty('Nicio cheltuială înregistrată.');
+    $('#saleList').innerHTML = sa.length ? sa.map(saleRow).join('') : empty('Nicio vânzare înregistrată.');
+  }
+
+  function renderAll() {
+    renderHives();
+    renderTreatments();
+    renderFeedings();
+    renderHarvests();
+    renderStock();
+    renderFinance();
+  }
+
+  function setField(form, name, value) {
+    var el = form.elements.namedItem(name);
+    if (!el) return;
+    if (el.tagName === 'SELECT' && value != null && value !== '') {
+      var v = String(value);
+      var exists = Array.prototype.some.call(el.options, function (o) { return o.value === v; });
+      if (!exists) {
+        var opt = document.createElement('option');
+        opt.value = v;
+        opt.textContent = v;
+        el.appendChild(opt);
+      }
+    }
+    el.value = value == null ? '' : value;
+  }
+
+  function resetForm(module) {
+    var form = document.getElementById(FORM[module]);
+    if (!form) return;
+
+    form.reset();
+    setField(form, 'id', '');
+
+    var title = form.querySelector('.form-title');
+    var titles = {
+      hives: 'Adaugă stup',
+      treatments: 'Adaugă tratament',
+      feedings: 'Adaugă hrănire',
+      harvests: 'Adaugă recoltă',
+      stock: 'Adaugă material',
+      expenses: 'Adaugă cheltuială',
+      sales: 'Adaugă vânzare'
+    };
+    if (title) title.textContent = titles[module] || 'Adaugă';
+
+    if (module === 'hives') {
+      var y = new Date().getFullYear();
+      setField(form, 'year', y);
+      setField(form, 'queenColor', queenColorForYear(y));
+      setField(form, 'vatra', 'Staționar');
+      setField(form, 'hiveType', 'Dadant 10 rame');
+      setField(form, 'state', 'Puternică');
+      setField(form, 'broodFrames', 0);
+      setField(form, 'honeyFrames', 0);
+    }
+
+    if (module === 'treatments') {
+      var p = PRODUCTS[0];
+      setField(form, 'date', today());
+      setField(form, 'hiveId', '');
+      setField(form, 'product', p.name);
+      setField(form, 'repeatDays', p.repeat);
+      setField(form, 'waitDays', p.wait);
+      setField(form, 'dosage', '');
+      setField(form, 'customProduct', '');
+      var wrap = form.querySelector('[data-custom-product]');
+      if (wrap) wrap.classList.add('hidden');
+    }
+
+    if (module === 'feedings') {
+      setField(form, 'date', today());
+      setField(form, 'hiveId', '');
+      setField(form, 'type', FEEDS[0].name);
+      setField(form, 'unit', FEEDS[0].unit);
+      setField(form, 'qty', '');
+    }
+
+    if (module === 'harvests') {
+      setField(form, 'date', today());
+      setField(form, 'vatra', 'Staționar');
+      setField(form, 'product', HARVEST_PRODUCTS[0].name);
+      setField(form, 'unit', HARVEST_PRODUCTS[0].unit);
+      setField(form, 'qty', '');
+    }
+
+    if (module === 'stock') {
+      setField(form, 'unit', 'buc');
+      setField(form, 'qty', '');
+      setField(form, 'minQty', '');
+    }
+
+    if (module === 'expenses') {
+      setField(form, 'date', today());
+      setField(form, 'category', EXPENSE_CATS[0]);
+    }
+
+    if (module === 'sales') {
+      setField(form, 'date', today());
+      setField(form, 'unit', 'kg');
+    }
+  }
+
+  function showForm(module) {
+    var form = document.getElementById(FORM[module]);
+    form.classList.remove('hidden');
+    setTimeout(function () {
+      form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 30);
+  }
+
+  function openEdit(module, id) {
+    var item = (db[module] || []).find(function (x) { return x.id === id; });
+    if (!item) return;
+
+    var form = document.getElementById(FORM[module]);
+    resetForm(module);
+    setField(form, 'id', item.id);
+
+    var title = form.querySelector('.form-title');
+    if (title) title.textContent = 'Editează';
+
+    if (module === 'hives') {
+      ['number', 'vatra', 'hiveType', 'state', 'year', 'queenColor', 'broodFrames', 'honeyFrames', 'notes'].forEach(function (k) {
+        setField(form, k, item[k]);
+      });
+    } else if (module === 'treatments') {
+      var known = PRODUCTS.some(function (p) { return p.name === item.product; });
+      if (known) {
+        setField(form, 'product', item.product);
+        var p = PRODUCTS.find(function (x) { return x.name === item.product; });
+        if (p) {
+          setField(form, 'repeatDays', p.repeat);
+          setField(form, 'waitDays', p.wait);
+        }
+      } else {
+        setField(form, 'product', '__custom');
+        setField(form, 'customProduct', item.product);
+        var wrap = form.querySelector('[data-custom-product]');
+        if (wrap) wrap.classList.remove('hidden');
+      }
+      ['dosage', 'date', 'repeatDays', 'waitDays', 'notes'].forEach(function (k) {
+        setField(form, k, item[k]);
+      });
+      setField(form, 'hiveId', item.hiveId || '');
+    } else if (module === 'feedings') {
+      ['type', 'qty', 'unit', 'date', 'notes'].forEach(function (k) {
+        setField(form, k, item[k]);
+      });
+      setField(form, 'hiveId', item.hiveId || '');
+    } else if (module === 'harvests') {
+      ['date', 'vatra', 'product', 'qty', 'unit', 'notes'].forEach(function (k) {
+        setField(form, k, item[k]);
+      });
+    } else if (module === 'stock') {
+      ['name', 'qty', 'unit', 'minQty'].forEach(function (k) {
+        setField(form, k, item[k]);
+      });
+    } else if (module === 'expenses') {
+      ['date', 'category', 'description', 'amount'].forEach(function (k) {
+        setField(form, k, item[k]);
+      });
+    } else if (module === 'sales') {
+      ['date', 'product', 'qty', 'unit', 'amount', 'notes'].forEach(function (k) {
+        setField(form, k, item[k]);
+      });
+    }
+
+    showForm(module);
+  }
+
+  function finish(module, msg) {
+    document.getElementById(FORM[module]).classList.add('hidden');
+    resetForm(module);
+    save();
+    renderAll();
+    toast(msg);
+  }
+
+  function upsert(list, item) {
+    var i = list.findIndex(function (x) { return x.id === item.id; });
+    if (i >= 0) list[i] = item;
+    else list.push(item);
+  }
+
+  function saveHive(e) {
+    e.preventDefault();
+    var fd = new FormData(e.target);
+    upsert(db.hives, {
+      id: str(fd.get('id')) || uid(),
+      number: num(fd.get('number')),
+      vatra: str(fd.get('vatra')),
+      hiveType: str(fd.get('hiveType')),
+      state: str(fd.get('state')),
+      year: num(fd.get('year')),
+      queenColor: str(fd.get('queenColor')),
+      broodFrames: num(fd.get('broodFrames')),
+      honeyFrames: num(fd.get('honeyFrames')),
+      notes: str(fd.get('notes'))
+    });
+    finish('hives', 'Stup salvat');
+  }
+
+  function saveTreatment(e) {
+    e.preventDefault();
+    var fd = new FormData(e.target);
+    var id = str(fd.get('id'));
+    var prev = id ? db.treatments.find(function (t) { return t.id === id; }) : null;
+    var product = str(fd.get('product')) === '__custom'
+      ? (str(fd.get('customProduct')) || 'Produs personalizat')
+      : str(fd.get('product'));
+
+    upsert(db.treatments, {
+      id: id || uid(),
+      product: product,
+      dosage: str(fd.get('dosage')),
+      date: str(fd.get('date')) || today(),
+      hiveId: str(fd.get('hiveId')) || null,
+      repeatDays: num(fd.get('repeatDays')),
+      waitDays: num(fd.get('waitDays')),
+      repeatDone: prev ? !!prev.repeatDone : false,
+      notes: str(fd.get('notes'))
+    });
+    finish('treatments', 'Tratament salvat');
+  }
+
+  function saveFeeding(e) {
+    e.preventDefault();
+    var fd = new FormData(e.target);
+    upsert(db.feedings, {
+      id: str(fd.get('id')) || uid(),
+      type: str(fd.get('type')),
+      qty: num(fd.get('qty')),
+      unit: str(fd.get('unit')),
+      date: str(fd.get('date')) || today(),
+      hiveId: str(fd.get('hiveId')) || null,
+      notes: str(fd.get('notes'))
+    });
+    finish('feedings', 'Hrănire salvată');
+  }
+
+  function saveHarvest(e) {
+    e.preventDefault();
+    var waits = db.treatments
+      .map(function (t) { return addDays(t.date, Number(t.waitDays) || 0); })
+      .filter(function (d) { return d > today(); })
+      .sort();
+
+    if (waits.length) {
+      var max = waits[waits.length - 1];
+      if (!confirm('Există un răgaz de recoltare activ până la ' + fmtDate(max) + '. Înregistrezi recolta oricum?')) return;
+    }
+
+    var fd = new FormData(e.target);
+    upsert(db.harvests, {
+      id: str(fd.get('id')) || uid(),
+      date: str(fd.get('date')) || today(),
+      vatra: str(fd.get('vatra')),
+      product: str(fd.get('product')),
+      qty: num(fd.get('qty')),
+      unit: str(fd.get('unit')),
+      notes: str(fd.get('notes'))
+    });
+    finish('harvests', 'Recoltă salvată');
+  }
+
+  function saveStock(e) {
+    e.preventDefault();
+    var fd = new FormData(e.target);
+    upsert(db.stock, {
+      id: str(fd.get('id')) || uid(),
+      name: str(fd.get('name')),
+      qty: num(fd.get('qty')),
+      unit: str(fd.get('unit')),
+      minQty: num(fd.get('minQty'))
+    });
+    finish('stock', 'Material salvat');
+  }
+
+  function saveExpense(e) {
+    e.preventDefault();
+    var fd = new FormData(e.target);
+    upsert(db.expenses, {
+      id: str(fd.get('id')) || uid(),
+      date: str(fd.get('date')) || today(),
+      category: str(fd.get('category')),
+      description: str(fd.get('description')),
+      amount: num(fd.get('amount'))
+    });
+    finish('expenses', 'Cheltuială salvată');
+  }
+
+  function saveSale(e) {
+    e.preventDefault();
+    var fd = new FormData(e.target);
+    upsert(db.sales, {
+      id: str(fd.get('id')) || uid(),
+      date: str(fd.get('date')) || today(),
+      product: str(fd.get('product')),
+      qty: num(fd.get('qty')),
+      unit: str(fd.get('unit')),
+      amount: num(fd.get('amount')),
+      notes: str(fd.get('notes'))
+    });
+    finish('sales', 'Vânzare salvată');
+  }
+
+  function deleteItem(module, id) {
+    if (!confirm('Ștergi ' + (LABELS[module] || 'înregistrarea') + '? Acțiunea nu poate fi anulată.')) return;
+    db[module] = db[module].filter(function (x) { return x.id !== id; });
+    save();
+    renderAll();
+    toast('Înregistrare ștearsă');
+  }
+
+  function repeatTreatment(id) {
+    var t = db.treatments.find(function (x) { return x.id === id; });
+    if (!t) return;
+    var copy = Object.assign({}, t, {
+      id: uid(),
+      date: today(),
+      repeatDone: false,
+      notes: t.notes ? t.notes + ' · rapel' : 'rapel'
+    });
+    t.repeatDone = true;
+    db.treatments.push(copy);
+    save();
+    renderAll();
+    toast('Rapel programat pentru azi');
+  }
+
+  function markRepeatDone(id) {
+    var t = db.treatments.find(function (x) { return x.id === id; });
+    if (!t) return;
+    t.repeatDone = true;
+    save();
+    renderAll();
+    toast('Rapel marcat ca efectuat');
+  }
+
+  function adjustStock(id, delta) {
+    var s = db.stock.find(function (x) { return x.id === id; });
+    if (!s) return;
+    s.qty = Math.max(0, num(s.qty) + delta);
+    save();
+    renderStock();
+    toast('Stoc actualizat');
+  }
+
+  function exportJSON() {
+    save();
+    var blob = new Blob([JSON.stringify(db, null, 2)], { type: 'application/json' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'stupina-backup-' + today() + '.json';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
+    toast('Backup exportat');
+  }
+
+  function importJSON(e) {
+    var file = e.target.files && e.target.files[0];
+    e.target.value = '';
+    if (!file) return;
+
+    var reader = new FileReader();
+    reader.onload = function () {
+      var parsed;
+      try {
+        parsed = JSON.parse(String(reader.result));
+      } catch (err) {
+        alert('Fișierul nu este un JSON valid.');
+        return;
+      }
+      if (!parsed || typeof parsed !== 'object') {
+        alert('Fișierul nu conține date valide.');
+        return;
+      }
+      var hasData = ['hives', 'treatments', 'feedings', 'harvests', 'stock', 'expenses', 'sales'].some(function (k) {
+        return Array.isArray(parsed[k]);
+      });
+      if (!hasData) {
+        alert('Fișierul nu pare a fi un backup al stupinei.');
+        return;
+      }
+      if (!confirm('Importul va înlocui toate datele actuale. Continuăm?')) return;
+
+      db = normalizeDB(parsed);
+      save();
+      renderAll();
+      toast('Backup restaurat');
+    };
+    reader.readAsText(file);
+  }
+
+  function resetAll() {
+    if (!confirm('Sigur ștergi toate datele stupinei?')) return;
+    if (!confirm('Ultima confirmare: datele vor fi pierdute definitiv. Continuăm?')) return;
+    db = emptyDB();
+    save();
+    renderAll();
+    toast('Datele au fost șterse');
+  }
+
+  function switchTab(tab) {
+    document.querySelectorAll('.tab-panel').forEach(function (p) {
+      p.classList.toggle('active', p.id === 'tab-' + tab);
+    });
+    document.querySelectorAll('.nav-btn').forEach(function (b) {
+      var on = b.dataset.tab === tab;
+      b.classList.toggle('active', on);
+      if (on) b.setAttribute('aria-current', 'page');
+      else b.removeAttribute('aria-current');
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function switchSegment(btn) {
+    var seg = btn.dataset.seg;
+    document.querySelectorAll('.seg-btn').forEach(function (b) {
+      b.classList.toggle('active', b === btn);
+    });
+    $('#stockPanel').classList.toggle('hidden', seg !== 'stock');
+    $('#financePanel').classList.toggle('hidden', seg !== 'finance');
+  }
+
+  function handleClick(e) {
+    var add = e.target.closest('[data-add]');
+    if (add) {
+      var m = add.dataset.add;
+      resetForm(m);
+      showForm(m);
+      return;
+    }
+
+    var cancel = e.target.closest('[data-cancel]');
+    if (cancel) {
+      document.getElementById(FORM[cancel.dataset.cancel]).classList.add('hidden');
+      return;
+    }
+
+    var actEl = e.target.closest('[data-act]');
+    if (!actEl) return;
+
+    var action = actEl.dataset.act;
+    var module = actEl.dataset.module;
+    var id = actEl.dataset.id;
+
+    if (action === 'edit') openEdit(module, id);
+    else if (action === 'del') deleteItem(module, id);
+    else if (action === 'repeat') repeatTreatment(id);
+    else if (action === 'done') markRepeatDone(id);
+    else if (action === 'inc') adjustStock(id, 1);
+    else if (action === 'dec') adjustStock(id, -1);
+  }
+
+  function handleChange(e) {
+    var t = e.target;
+    var form = t.closest('form');
+    if (!form) return;
+
+    if (form.id === 'treatmentsForm' && t.name === 'product') {
+      var wrap = form.querySelector('[data-custom-product]');
+      if (t.value === '__custom') {
+        if (wrap) wrap.classList.remove('hidden');
+      } else {
+        if (wrap) wrap.classList.add('hidden');
+        var p = PRODUCTS.find(function (x) { return x.name === t.value; });
+        if (p) {
+          setField(form, 'repeatDays', p.repeat);
+          setField(form, 'waitDays', p.wait);
+        }
+      }
+    }
+
+    if (form.id === 'hivesForm' && t.name === 'year') {
+      var c = queenColorForYear(t.value);
+      if (c) setField(form, 'queenColor', c);
+    }
+
+    if (form.id === 'feedingsForm' && t.name === 'type') {
+      var f = FEEDS.find(function (x) { return x.name === t.value; });
+      if (f) setField(form, 'unit', f.unit);
+    }
+
+    if (form.id === 'harvestsForm' && t.name === 'product') {
+      var hp = HARVEST_PRODUCTS.find(function (x) { return x.name === t.value; });
+      if (hp) setField(form, 'unit', hp.unit);
+    }
+  }
+
+  function bind() {
+    document.querySelectorAll('.nav-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () { switchTab(btn.dataset.tab); });
+    });
+
+    document.querySelectorAll('.seg-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () { switchSegment(btn); });
+    });
+
+    document.addEventListener('click', handleClick);
+    document.addEventListener('change', handleChange);
+
+    document.getElementById('btnExport').addEventListener('click', exportJSON);
+    document.getElementById('importFile').addEventListener('change', importJSON);
+    document.getElementById('resetAll').addEventListener('click', resetAll);
+
+    document.getElementById('hivesForm').addEventListener('submit', saveHive);
+    document.getElementById('treatmentsForm').addEventListener('submit', saveTreatment);
+    document.getElementById('feedingsForm').addEventListener('submit', saveFeeding);
+    document.getElementById('harvestsForm').addEventListener('submit', saveHarvest);
+    document.getElementById('stockForm').addEventListener('submit', saveStock);
+    document.getElementById('expenseForm').addEventListener('submit', saveExpense);
+    document.getElementById('saleForm').addEventListener('submit', saveSale);
+  }
+
+  function init() {
+    db = loadDB();
+    fillStaticSelects();
+    fillHiveSelects();
+    ['hives', 'treatments', 'feedings', 'harvests', 'stock', 'expenses', 'sales'].forEach(resetForm);
+    bind();
+    renderAll();
+    setStatus('Salvare automată activă');
+  }
+
+  init();
+})();
+</script>
+
+</body>
+</html>
