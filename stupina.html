@@ -6,11 +6,11 @@
 <meta name="theme-color" content="#f6f1e6">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Stupina Nicoară">
+<meta name="apple-mobile-web-app-title" content="Parc De La Saussaie">
 <meta name="description" content="Stupina Nicoară — manager apicol offline cu stupi, tratamente, hrănire, recolte, magazie, galerie foto/video, etichete QR și traducere.">
 <link rel="icon" id="favicon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232c2217'/%3E%3Cg fill='none' stroke='%23f7c948' stroke-width='2.2'%3E%3Cpath d='M32 8l8 4.6v9.2L32 26.4l-8-4.6v-9.2z'/%3E%3Cpath d='M18 22l8 4.6v9.2L18 40.4l-8-4.6v-9.2z'/%3E%3Cpath d='M46 22l8 4.6v9.2L46 40.4l-8-4.6v-9.2z'/%3E%3Cpath d='M32 36l8 4.6v9.2L32 54.4l-8-4.6v-9.2z'/%3E%3C/g%3E%3Cellipse cx='32' cy='34' rx='7' ry='9' fill='%23f7c948'/%3E%3Cpath d='M32 25v18M25 31h14M25 38h14' stroke='%232c2217' stroke-width='2'/%3E%3Ccircle cx='32' cy='23' r='4' fill='%232c2217'/%3E%3Cpath d='M29 20l-3-3M35 20l3-3' stroke='%232c2217' stroke-width='2'/%3E%3C/svg%3E">
 <link rel="apple-touch-icon" id="appleIcon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232c2217'/%3E%3Cellipse cx='32' cy='34' rx='7' ry='9' fill='%23f7c948'/%3E%3C/svg%3E">
-<title>Stupina Nicoară — manager apicol</title>
+<title>Parc De La Saussaie — Stupina Nicoară</title>
 <style>
   :root {
     --bg: #f6f1e6;
@@ -178,6 +178,8 @@
   }
 
   .card.compact { padding: 13px; }
+  .card.clickable { cursor: pointer; }
+  .card.clickable:active { transform: scale(0.995); }
 
   .card-top { display: flex; align-items: flex-start; gap: 10px; }
   .grow { flex: 1; min-width: 0; }
@@ -626,6 +628,139 @@
   }
   .scan-status { margin-top: 10px; font-size: 0.8rem; color: var(--muted); }
 
+  /* --- vreme locală --- */
+  .weather-card {
+    background: linear-gradient(135deg, #fff8e6, #fffdf8 62%);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 13px 14px;
+    margin-bottom: 14px;
+    box-shadow: var(--shadow);
+  }
+  .weather-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+  .weather-head h3 { font-size: 1rem; margin-top: 2px; }
+  .weather-status {
+    flex: none; font-size: 0.64rem; font-weight: 800; padding: 5px 10px;
+    border-radius: 999px; text-transform: uppercase; letter-spacing: 0.04em;
+    white-space: nowrap; text-align: center;
+  }
+  .weather-status.ok { background: #e3f2e7; color: #2f7047; }
+  .weather-status.warn { background: #fbf0d4; color: #8a6100; }
+  .weather-status.bad { background: #f9e3de; color: #a43a24; }
+  .weather-status.loading { background: #f1e9da; color: #6b5a44; }
+  .weather-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
+    margin-top: 11px; padding-top: 10px; border-top: 1px dashed var(--line);
+  }
+  .weather-grid div { text-align: center; }
+  .weather-grid b { display: block; font-size: 1.02rem; }
+  .weather-grid span {
+    font-size: 0.6rem; color: var(--muted); text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .weather-note { margin-top: 9px; font-size: 0.68rem; color: var(--muted); }
+  @media (max-width: 430px) { .weather-grid { grid-template-columns: repeat(2, 1fr); } }
+
+  /* --- monitorizare stup --- */
+  .mon-block { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--line); }
+  .mon-block:first-of-type { margin-top: 12px; }
+  .mon-title {
+    font-weight: 800; font-size: 0.92rem; margin-bottom: 8px;
+    display: flex; align-items: center; gap: 7px;
+  }
+  .mon-title::before {
+    content: ''; width: 8px; height: 8px; border-radius: 50%;
+    background: var(--honey); flex: none;
+  }
+  .mon-hint { font-size: 0.72rem; color: var(--muted); line-height: 1.45; margin: 6px 0 0; }
+  .mon-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 10px; }
+  .mon-meta { font-size: 0.68rem; color: var(--muted); margin-top: 6px; }
+  .mon-latest { font-size: 0.72rem; font-weight: 700; color: var(--muted); align-self: center; }
+  @media (max-width: 430px) { .mon-grid { grid-template-columns: 1fr; } }
+
+  .alert-bad {
+    background: #f9e3de; border: 1px solid #e6b7ab; color: #a43a24;
+    border-radius: 11px; padding: 9px 11px; font-size: 0.78rem;
+    font-weight: 600; margin-bottom: 10px; line-height: 1.4;
+  }
+  .alert-warn {
+    background: #fdf3d8; border: 1px solid #ecd28a; color: #6d4d00;
+    border-radius: 11px; padding: 9px 11px; font-size: 0.78rem;
+    font-weight: 600; margin-top: 10px; line-height: 1.4;
+  }
+
+  .spark-wrap { margin-top: 10px; }
+  .spark {
+    width: 100%; height: auto; background: #fffdf8; border: 1px solid var(--line);
+    border-radius: 12px; display: block;
+  }
+  .spark-legend {
+    display: flex; flex-wrap: wrap; gap: 10px; margin-top: 6px;
+    font-size: 0.62rem; color: var(--muted);
+  }
+  .spark-legend span { display: inline-flex; align-items: center; gap: 4px; }
+  .spark-legend span::before { content: ''; width: 9px; height: 9px; border-radius: 2px; }
+  .spark-legend .lg-temp::before { background: var(--honey); }
+  .spark-legend .lg-hum::before { background: var(--blue); }
+  .spark-legend .lg-band::before { background: rgba(60, 139, 87, 0.22); border: 1px solid var(--green); }
+
+  .audio-progress {
+    font-size: 0.74rem; color: var(--amber); font-weight: 700;
+    margin-top: 8px; min-height: 1.1em;
+  }
+  .audio-result {
+    margin-top: 9px; padding: 10px 12px; border-radius: 12px;
+    font-size: 0.82rem; border: 1px solid var(--line); background: #f7f3ea;
+  }
+  .audio-result b { font-size: 1rem; }
+  .audio-result.ok { background: #e9f5ec; border-color: #bfe0c8; color: #2f7047; }
+  .audio-result.warn { background: #fdf3d8; border-color: #ecd28a; color: #6d4d00; }
+  .audio-result.bad { background: #f9e3de; border-color: #e6b7ab; color: #a43a24; }
+
+  .counter-row { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin-top: 10px; }
+  .counter {
+    border: 1px solid var(--line); border-radius: 13px; padding: 10px;
+    background: #fffdf8; text-align: center;
+  }
+  .counter > span {
+    display: block; font-size: 0.66rem; color: var(--muted);
+    font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  .counter-ctrl {
+    display: flex; align-items: center; justify-content: center;
+    gap: 10px; margin-top: 8px;
+  }
+  .counter-ctrl b { font-size: 1.2rem; min-width: 28px; }
+  .round-btn.tiny { width: 34px; height: 34px; }
+  .round-btn.tiny svg { width: 15px; height: 15px; }
+  @media (max-width: 360px) { .counter-row { grid-template-columns: 1fr; } }
+
+  .btn.danger {
+    background: linear-gradient(135deg, #d35a3f, var(--red));
+    color: #fff;
+    box-shadow: 0 6px 16px -8px rgba(192, 73, 47, 0.9);
+  }
+
+  .journal-list { margin-top: 10px; display: flex; flex-direction: column; gap: 8px; }
+  .journal-item {
+    display: flex; align-items: center; gap: 10px; border: 1px solid var(--line);
+    border-radius: 12px; padding: 8px; background: #fffdf8;
+  }
+  .journal-item.vespa { border-color: #e6b7ab; background: #fdf1ee; }
+  .journal-thumb {
+    width: 52px; height: 52px; object-fit: cover; border-radius: 9px;
+    border: 1px solid var(--line); cursor: pointer; flex: none;
+  }
+  .interv-item {
+    display: flex; align-items: center; gap: 10px; border: 1px solid var(--line);
+    border-radius: 12px; padding: 9px 10px; background: #fffdf8;
+  }
+  .interv-icon {
+    width: 34px; height: 34px; border-radius: 9px; flex: none;
+    display: grid; place-items: center; font-size: 0.95rem;
+    background: #f1e9da;
+  }
+
   /* --- print --- */
   #printArea { display: none; }
   @media print {
@@ -644,8 +779,8 @@
 <header class="topbar">
   <div class="topbar-inner">
     <div class="brand">
-      <h1>Stupina Nicoară</h1>
-      <p id="saveStatus">Salvare automată activă</p>
+      <h1>Parc De La Saussaie</h1>
+      <p id="saveStatus">Stupina Nicoară • Salvare automată activă</p>
     </div>
     <div class="top-actions">
       <button type="button" class="btn small ghost" id="btnExport" title="Exportă backup JSON">
@@ -667,6 +802,8 @@
 
 <main>
 
+  <div id="weatherCard" class="weather-card"></div>
+
   <section id="tab-hives" class="tab-panel active">
     <div class="module-head">
       <div>
@@ -682,38 +819,18 @@
       <h3 class="form-title">Adaugă stup</h3>
       <input type="hidden" name="id">
       <div class="form-grid">
-        <label class="field"><span>Număr stup</span><input name="number" type="number" min="1" step="1" inputmode="numeric" required></label>
-        <label class="field"><span>Vatră</span>
-          <select name="vatra">
-            <option>Staționar</option>
-            <option>Pastoral</option>
-          </select>
+                <label class="field"><span>Culoare matc?</span>
+          <select name="queenColor"><option>Alb</option><option>Galben</option><option>Ro?u</option><option>Verde</option><option>Albastru</option></select>
         </label>
-        <label class="field"><span>Tip ladă</span>
-          <select name="hiveType">
-            <option>Dadant 10 rame</option>
-            <option>Dadant 12 rame</option>
-            <option>MER</option>
-            <option>Orizontal</option>
-          </select>
+        <label class="field"><span>Culoare lad? stup</span>
+          <select name="hiveColor"><option>Mov</option><option>Portocaliu</option><option>Albastru-Alb</option><option>Verde</option><option>Galben</option><option>Lemn natural</option><option>Trunchi / Ruche-tronc</option></select>
         </label>
-        <label class="field"><span>Stare familie</span>
-          <select name="state">
-            <option>Puternică</option>
-            <option>Medie</option>
-            <option>Slabă</option>
-            <option>Orfană</option>
-          </select>
+        <label class="field"><span>Cod lad?</span><input name="boxCode" type="text" placeholder="ex. A5148515"></label>
+        <label class="field"><span>Origine / Furnizor matc?</span>
+          <select name="queenOrigin"><option value="">? nespecificat ?</option><option>ICKO - Buckfast Fr?re Adam (Fran?a)</option><option>Apis Oprea (Rom?nia)</option><option>Propria stupin?</option></select>
         </label>
-        <label class="field"><span>An matcă</span><input name="year" type="number" min="2000" max="2100" step="1" inputmode="numeric"></label>
-        <label class="field"><span>Culoare matcă</span>
-          <select name="queenColor">
-            <option>Alb</option>
-            <option>Galben</option>
-            <option>Roșu</option>
-            <option>Verde</option>
-            <option>Albastru</option>
-          </select>
+        <label class="field"><span>Ras?</span>
+          <select name="queenBreed"><option>Buckfast</option><option>Carnica</option><option>Carpatin?</option><option>Local?</option></select>
         </label>
         <label class="field"><span>Rame cu puiet</span><input name="broodFrames" type="number" min="0" step="1" inputmode="numeric" value="0"></label>
         <label class="field"><span>Rame cu miere</span><input name="honeyFrames" type="number" min="0" step="1" inputmode="numeric" value="0"></label>
@@ -781,6 +898,15 @@
       <button class="btn primary small" type="button" data-add="feedings">+ Hrănire</button>
     </div>
 
+    <div id="calendarAlerts"></div>
+    <div class="card card-form">
+      <div class="form-head"><h2>Re?etar &amp; calculator hr?nire (7 stupi)</h2></div>
+      <div class="form-grid">
+        <label class="field"><span>Re?et?</span><select id="feedRecipe"><option value="s11">Sirop 1:1 prim?var?</option><option value="s21">Sirop 2:1 toamn?</option><option value="candy">Candy iarn?</option><option value="protein">Turt? proteic?</option></select></label>
+        <label class="field"><span>Num?r stupi</span><input id="feedRecipeHives" type="number" min="1" step="1" value="7"></label>
+      </div>
+      <div id="feedRecipeOut" class="recipe-card"></div>
+    </div>
     <div id="feedingsSummary"></div>
     <div id="feedingBreakdown"></div>
 
@@ -871,8 +997,12 @@
     <div id="stockPanel">
       <div class="sub-head">
         <h3>Stoc materiale</h3>
-        <button class="btn primary small" type="button" data-add="stock">+ Material</button>
+        <div class="tool-row">
+          <button class="btn ghost small" type="button" data-act="loadIcko2026">?ncarc? facturi ICKO 2026</button>
+          <button class="btn primary small" type="button" data-add="stock">+ Material</button>
+        </div>
       </div>
+      <div id="invoiceSummary"></div>
       <div id="stockSummary"></div>
 
       <form id="stockForm" class="form-card hidden">
@@ -967,6 +1097,20 @@
       <button class="btn primary small" type="button" id="btnPrintLabels">Tipărește</button>
     </div>
 
+    <div class="card card-form" id="declarantCard">
+      <div class="form-head"><h2>Date oficiale declarant (CERFA 13995*07)</h2></div>
+      <div class="hive-meta-grid">
+        <div class="hive-meta"><b>Num?r NAPI:</b> A5200524</div>
+        <div class="hive-meta"><b>Declarant:</b> Monsieur ILIE NICOARA</div>
+        <div class="hive-meta"><b>Adres?:</b> 15 route de Fontainebleau, 94400 Vitry-sur-Seine</div>
+        <div class="hive-meta"><b>Amplasament:</b> Parc De La Saussaie ? Vitry-sur-Seine / Chevilly-Larue (94400)</div>
+      </div>
+      <div class="tool-row" style="margin-top:10px">
+        <a class="btn ghost small" href="https://mesdemarches.agriculture.gouv.fr/demarches/particulier/effectuer-une-declaration-55/article/declarer-des-ruches-" target="_blank" rel="noopener">Declara?ie anual? NAPI (1 Sept ? 31 Dec)</a>
+        <button class="btn primary small" type="button" data-act="printRegistry">Genereaz? Registre d'?levage (Print / PDF)</button>
+      </div>
+    </div>
+
     <div class="sub-head"><h3>Etichete pentru stupi</h3></div>
     <p class="scan-status">Lipește eticheta pe stup. Scanezi codul și se deschide fișa stupului.</p>
     <div id="qrLabels" class="qr-grid"></div>
@@ -1007,6 +1151,14 @@
         <button class="btn ghost small" type="button" id="btnTrCopy">Copiază</button>
       </div>
       <div class="tr-out" id="trOut">Rezultatul apare aici.</div>
+    </div>
+
+    <div class="qr-panel">
+      <div class="sub-head"><h3>Setări &amp; inițializare</h3></div>
+      <p class="scan-status">Creează rapid cei 7 stupi standard pentru sezonul 2026 (matcă 2026, marcaj Alb, Dadant 10 rame, 5 rame puiet, 3 rame miere). Stupii existenți nu sunt modificați.</p>
+      <div class="tool-row">
+        <button class="btn primary small" type="button" data-act="seedHives">Inițializează 7 stupi 2026</button>
+      </div>
     </div>
   </section>
 
@@ -1071,6 +1223,8 @@
 
 <input type="file" id="photoInput" accept="image/*" capture="environment" hidden>
 <input type="file" id="videoInput" accept="video/*" capture="environment" hidden>
+<input type="file" id="vespaInput" accept="image/*" capture="environment" hidden>
+<input type="file" id="urdinisInput" accept="image/*" capture="environment" hidden>
 
 <div id="printArea"></div>
 
@@ -3380,6 +3534,9 @@ var qrcode = function() {
   'use strict';
 
   var KEY = 'stupina.v1';
+  var WEATHER_KEY = 'stupina.weather';
+  var WEATHER_LAT = 48.7745;
+  var WEATHER_LON = 2.3536;
 
   var PRODUCTS = [
     { name: 'Varachet Forte', repeat: 7, wait: 30 },
@@ -3465,13 +3622,135 @@ var qrcode = function() {
   var activeHiveId = null;
   var scanStream = null;
   var scanTimer = null;
+  var audioCtx = null;
+  var audioStream = null;
+  var audioTimer = null;
   var MAX_PHOTOS = 10;
   var MAX_VIDEOS = 1;
   var MAX_VIDEO_BYTES = 1.5 * 1024 * 1024;
   var STORAGE_SOFT_LIMIT = 4400000;
 
+  var DECLARANT = {
+    napi: 'A5200524',
+    name: 'Monsieur ILIE NICOARA',
+    address: '15 route de Fontainebleau, 94400 Vitry-sur-Seine',
+    location: 'Parc De La Saussaie – Vitry-sur-Seine / Chevilly-Larue (94400)',
+    cerfa: 'CERFA 13995*07',
+    napiUrl: 'https://mesdemarches.agriculture.gouv.fr/demarches/particulier/effectuer-une-declaration-55/article/declarer-des-ruches-'
+  };
+
+  var HIVE_COLORS = [
+    { name: 'Mov', color: '#7c3aed' },
+    { name: 'Portocaliu', color: '#ea580c' },
+    { name: 'Albastru-Alb', color: 'linear-gradient(135deg,#2563eb 50%,#f8fafc 50%)' },
+    { name: 'Verde', color: '#16a34a' },
+    { name: 'Galben', color: '#eab308' },
+    { name: 'Lemn natural', color: '#c48a52' },
+    { name: 'Trunchi / Ruche-tronc', color: '#6b4f2a' }
+  ];
+  var QUEEN_ORIGINS = ['ICKO - Buckfast Frère Adam (Franța)', 'Apis Oprea (România)', 'Propria stupină'];
+  var QUEEN_BREEDS = ['Buckfast', 'Carnica', 'Carpatină', 'Locală'];
+
+  var ICKO_2026 = [
+    { code: 'MBUC2602FAC0022', date: '2026-02-03', total: 63.09, supplier: 'ICKO Apiculture', client: '066345', items: [
+      { name: 'Sirop Melliflora 14 kg', qty: 1, unit: 'bidon', price: 0 },
+      { name: 'Nozevit+ 50 ml', qty: 1, unit: 'flacon', price: 0 },
+      { name: 'Promotor L APIS 1L', qty: 1, unit: 'flacon', price: 0 }
+    ]},
+    { code: 'MBUC2605FAC0772', date: '2026-05-29', total: 10.56, supplier: 'ICKO Apiculture', client: '066345', items: [
+      { name: 'Hrănitor podișor Anel 10 rame', qty: 1, unit: 'buc', price: 10.56 }
+    ]},
+    { code: 'MBUC2606FAC0020', date: '2026-06-02', total: 79.99, supplier: 'ICKO Apiculture', client: '066345', items: [
+      { name: 'Regină 2026 Buckfast (Frère Adam - Franța)', qty: 2, unit: 'buc', price: 39.995 }
+    ]},
+    { code: 'MBUC2606FAC0354', date: '2026-06-16', total: 106.15, supplier: 'ICKO Apiculture', client: '066345', items: [
+      { name: 'Intrări selective capcană viespi', qty: 10, unit: 'buc', price: 0 },
+      { name: 'Foi ceară Dadant cat (1 kg / 20 foi)', qty: 1, unit: 'pachet', price: 0 },
+      { name: 'Sârmă inox 500g', qty: 1, unit: 'rolă', price: 0 },
+      { name: 'Curățitor rame', qty: 1, unit: 'buc', price: 0 },
+      { name: 'Pattie Super protéiné (3.6 kg total)', qty: 8, unit: 'buc', price: 0 },
+      { name: 'Atractant Guep\'apens 500 ml', qty: 1, unit: 'flacon', price: 0 }
+    ]},
+    { code: 'MBUC2606FAC0355', date: '2026-06-16', total: 15.70, supplier: 'ICKO Apiculture', client: '066345', items: [
+      { name: 'Capcane viespi Tap Trap', qty: 10, unit: 'buc', price: 1.57 }
+    ]},
+    { code: 'MBUC2606FAC0393', date: '2026-06-17', total: 44.99, supplier: 'ICKO Apiculture', client: '066345', items: [
+      { name: 'Vopsea albă marcare regine 2026', qty: 1, unit: 'buc', price: 0 },
+      { name: 'Daltă cu clește 270 mm', qty: 1, unit: 'buc', price: 0 },
+      { name: 'Foi ceară PREMIUM Dadant corp (1 kg / 10 foi)', qty: 1, unit: 'pachet', price: 0 }
+    ]},
+    { code: 'MBUC2608FAC0446', date: '2026-08-27', total: 76.35, supplier: 'ICKO Apiculture', client: '066345', items: [
+      { name: 'Capcane VespaCatch Original', qty: 5, unit: 'buc', price: 0 },
+      { name: 'Plăci Candi Super protéiné (5 kg total)', qty: 5, unit: 'buc', price: 0 },
+      { name: 'Discuri intrare nuclee 50 mm', qty: 9, unit: 'buc', price: 0 },
+      { name: 'Borcane sticlă 1 kg', qty: 20, unit: 'buc', price: 0 }
+    ]}
+  ];
+
+  var FEED_RECIPES = [
+    { id: 's11', name: 'Sirop 1:1 primăvară', season: 'primăvară', desc: '1 kg zahăr + 1 l apă', sugarKg: 1, waterL: 1, perHive: 1, unit: 'l sirop', note: 'Stimulent, primăvară/devreme.' },
+    { id: 's21', name: 'Sirop 2:1 toamnă', season: 'toamnă', desc: '2 kg zahăr + 1 l apă', sugarKg: 2, waterL: 1, perHive: 3, unit: 'l sirop', note: 'Hrănire de iernare, concentrație mare.' },
+    { id: 'candy', name: 'Candy iarnă', season: 'iarnă', desc: 'zahăr pudră + sirop/miere, turte solide', sugarKg: 1, waterL: 0, perHive: 1, unit: 'kg candy', note: 'Pentru perioade reci, fără umiditate excesivă.' },
+    { id: 'protein', name: 'Turtă proteică', season: 'primăvară', desc: 'polen/substitut + sirop', sugarKg: 0.3, waterL: 0.2, perHive: 0.5, unit: 'kg turtă', note: 'Stimulează creșterea puietului.' }
+  ];
+
+  var CALENDAR_IDF = [
+    { id: 'cal-jan', months: [1, 2], title: 'Turte de iarnă', text: 'Verifică rezervele și administrează turte/candy (ianuarie-februarie).', type: 'feed' },
+    { id: 'cal-apr', months: [4], title: 'Sirop de stimulare', text: 'Sirop 1:1 pentru stimularea depunerii (aprilie).', type: 'feed' },
+    { id: 'cal-may', months: [5], title: 'Cules salcâm', text: 'Supraveghere cules salcâm, adaugă caturi la nevoie (mai).', type: 'honey' },
+    { id: 'cal-jun', months: [6], title: 'Cules tei', text: 'Monitorizează culesul de tei și spațiul de depozitare (iunie).', type: 'honey' },
+    { id: 'cal-jul', months: [7], title: 'Tratament Varroa vară', text: 'Aplică tratament anti-Varroa după cules, conform produsului (iulie).', type: 'alert' },
+    { id: 'cal-dec', months: [12], title: 'Tratament Varroa iarnă', text: 'Tratament de iarnă (ex. acid oxalic) în absența puietului căpăcit (decembrie).', type: 'alert' },
+    { id: 'cal-napi', months: [9, 10, 11, 12], title: 'Declarație NAPI', text: 'Declarația anuală de stupi: 1 septembrie – 31 decembrie.', type: 'admin', url: DECLARANT.napiUrl }
+  ];
+
   function emptyDB() {
-    return { version: 1, hives: [], treatments: [], feedings: [], harvests: [], stock: [], expenses: [], sales: [] };
+    return { version: 1, hives: [], treatments: [], feedings: [], harvests: [], stock: [], expenses: [], sales: [], invoices: [] };
+  }
+
+  function createStandardHive(n) {
+    return {
+      id: uid(),
+      number: n,
+      name: 'Stup #' + n,
+      vatra: 'Staționar',
+      hiveType: 'Dadant 10 rame',
+      state: 'Puternică',
+      year: 2026,
+      queenColor: 'Alb',
+      queenOrigin: '',
+      queenBreed: 'Buckfast',
+      hiveColor: 'Lemn natural',
+      boxCode: '',
+      broodFrames: 5,
+      honeyFrames: 3,
+      notes: '',
+      media: [],
+      climate: [],
+      audio: [],
+      journal: [],
+      cameraUrl: '',
+      pollenBees: 0,
+      drones: 0
+    };
+  }
+
+  function seedHives(manual) {
+    var nums = db.hives.map(function (h) { return num(h.number); });
+    var added = 0;
+    for (var n = 1; n <= 7; n += 1) {
+      if (nums.indexOf(n) < 0) {
+        db.hives.push(createStandardHive(n));
+        added += 1;
+      }
+    }
+    if (!added) {
+      if (manual) toast('Cei 7 stupi 2026 sunt deja inițializați.');
+      return;
+    }
+    save();
+    renderAll();
+    toast(added + ' stupi 2026 adăugați');
   }
 
   function $(sel) { return document.querySelector(sel); }
@@ -3496,6 +3775,7 @@ var qrcode = function() {
 
   function toISO(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
   function today() { return toISO(new Date()); }
+  function nowTime() { var d = new Date(); return pad(d.getHours()) + ':' + pad(d.getMinutes()); }
 
   function parseISO(s) {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(String(s || ''))) return null;
@@ -3544,10 +3824,16 @@ var qrcode = function() {
     return '<div class="empty">' + esc(msg) + '</div>';
   }
 
+  function hiveColorCss(name) { var c = HIVE_COLORS.find(function(x){return x.name===name;}); return c ? c.color : '#c48a52'; }
+  function hiveName(h) {
+    if (!h) return 'Stup';
+    return h.name ? String(h.name) : ('Stup #' + (h.number == null ? '' : h.number));
+  }
+
   function hiveLabel(id) {
     if (!id) return 'Toată stupina';
     var h = db.hives.find(function (x) { return x.id === id; });
-    return h ? 'Stup ' + h.number : 'Stup șters';
+    return h ? hiveName(h) : 'Stup șters';
   }
 
   function loadDB() {
@@ -3563,14 +3849,26 @@ var qrcode = function() {
   function normalizeDB(raw) {
     var base = emptyDB();
     if (!raw || typeof raw !== 'object') return base;
-    ['hives', 'treatments', 'feedings', 'harvests', 'stock', 'expenses', 'sales'].forEach(function (k) {
+    ['hives', 'treatments', 'feedings', 'harvests', 'stock', 'expenses', 'sales', 'invoices'].forEach(function (k) {
       if (Array.isArray(raw[k])) {
         base[k] = raw[k].filter(function (x) { return x && typeof x === 'object'; }).map(function (x) {
           if (!x.id) x.id = uid();
           if (k === 'hives') {
             if (!Array.isArray(x.media)) x.media = [];
             x.media = x.media.filter(function (m) { return m && typeof m === 'object' && m.data; });
+            if (!x.name) x.name = 'Stup #' + (x.number == null ? '' : x.number);
+            if (!Array.isArray(x.climate)) x.climate = [];
+            if (!Array.isArray(x.audio)) x.audio = [];
+            if (!Array.isArray(x.journal)) x.journal = [];
+            if (x.cameraUrl == null) x.cameraUrl = '';
+            if (x.pollenBees == null) x.pollenBees = 0;
+            if (x.drones == null) x.drones = 0;
+            if (x.queenOrigin == null) x.queenOrigin = '';
+            if (x.queenBreed == null) x.queenBreed = 'Buckfast';
+            if (x.hiveColor == null) x.hiveColor = 'Lemn natural';
+            if (x.boxCode == null) x.boxCode = '';
           }
+          if (k === 'invoices' && x.code) x.code = String(x.code).trim().toUpperCase();
           return x;
         });
       }
@@ -3582,7 +3880,7 @@ var qrcode = function() {
     try {
       localStorage.setItem(KEY, JSON.stringify(db));
       var t = new Date().toLocaleTimeString('ro-RO', { hour: '2-digit', minute: '2-digit' });
-      setStatus('Salvat automat · ' + t);
+      setStatus('Stupina Nicoară • Salvat automat · ' + t);
       return true;
     } catch (err) {
       setStatus('Eroare la salvare');
@@ -3603,6 +3901,77 @@ var qrcode = function() {
     el.classList.add('show');
     clearTimeout(toastTimer);
     toastTimer = setTimeout(function () { el.classList.remove('show'); }, 2200);
+  }
+
+  function weatherFlightStatus(temp, wind, precip) {
+    var t = num(temp), w = num(wind), p = num(precip);
+    if (p > 0.2 || w > 25 || t < 12 || t > 38) return { label: 'Slabe', tone: 'bad' };
+    if (p > 0 || w > 15 || t < 15 || t > 35) return { label: 'Moderate', tone: 'warn' };
+    return { label: 'Optime', tone: 'ok' };
+  }
+
+  function renderWeather(data, offline) {
+    var el = $('#weatherCard');
+    if (!el) return;
+    if (!data) {
+      el.innerHTML =
+        '<div class="weather-head">' +
+          '<div><span class="kicker">Vremea locală</span><h3>Parc de la Saussaie</h3></div>' +
+          '<span class="weather-status loading">Fără conexiune</span>' +
+        '</div>' +
+        '<div class="weather-grid">' +
+          '<div><b>—</b><span>Temperatură</span></div>' +
+          '<div><b>—</b><span>Umiditate</span></div>' +
+          '<div><b>—</b><span>Vânt</span></div>' +
+          '<div><b>—</b><span>Precipitații</span></div>' +
+        '</div>' +
+        '<p class="weather-note">Datele meteo vor apărea automat când revine conexiunea la internet.</p>';
+      return;
+    }
+    var s = weatherFlightStatus(data.temp, data.wind, data.precip);
+    var stamp = data.time ? String(data.time).replace('T', ' ') : 'acum';
+    el.innerHTML =
+      '<div class="weather-head">' +
+        '<div><span class="kicker">Vremea locală</span><h3>Parc de la Saussaie</h3></div>' +
+        '<span class="weather-status ' + s.tone + '">Condiții de zbor: ' + s.label + '</span>' +
+      '</div>' +
+      '<div class="weather-grid">' +
+        '<div><b>' + fmtNum(data.temp) + '°C</b><span>Temperatură</span></div>' +
+        '<div><b>' + fmtNum(data.humidity) + '%</b><span>Umiditate</span></div>' +
+        '<div><b>' + fmtNum(data.wind) + '</b><span>Vânt km/h</span></div>' +
+        '<div><b>' + fmtNum(data.precip) + ' mm</b><span>Precipitații</span></div>' +
+      '</div>' +
+      '<p class="weather-note">Sursă: Open-Meteo · ' + (offline ? 'offline, ultimele date salvate' : 'actualizat ' + esc(stamp)) + '</p>';
+  }
+
+  function loadWeather() {
+    var cached = null;
+    try { cached = JSON.parse(localStorage.getItem(WEATHER_KEY) || 'null'); } catch (err) { cached = null; }
+    if (cached) renderWeather(cached, false);
+    else {
+      var el = $('#weatherCard');
+      if (el) {
+        el.innerHTML = '<div class="weather-head"><div><span class="kicker">Vremea locală</span><h3>Parc de la Saussaie</h3></div><span class="weather-status loading">Se încarcă…</span></div><p class="weather-note">Conectare la Open-Meteo…</p>';
+      }
+    }
+    var url = 'https://api.open-meteo.com/v1/forecast?latitude=' + WEATHER_LAT + '&longitude=' + WEATHER_LON +
+      '&current=temperature_2m,relative_humidity_2m,wind_speed_10m,precipitation&timezone=auto';
+    fetch(url).then(function (r) { return r.json(); }).then(function (j) {
+      if (!j || !j.current) throw new Error('no data');
+      var c = j.current;
+      var data = {
+        temp: num(c.temperature_2m),
+        humidity: num(c.relative_humidity_2m),
+        wind: num(c.wind_speed_10m),
+        precip: num(c.precipitation),
+        time: c.time || ''
+      };
+      try { localStorage.setItem(WEATHER_KEY, JSON.stringify(data)); } catch (err) {}
+      renderWeather(data, false);
+    }).catch(function () {
+      if (cached) renderWeather(cached, true);
+      else renderWeather(null, true);
+    });
   }
 
   function fillStaticSelects() {
@@ -3643,7 +4012,7 @@ var qrcode = function() {
     document.querySelectorAll('select[data-hives]').forEach(function (sel) {
       var current = sel.value;
       sel.innerHTML = '<option value="">Toată stupina</option>' + hives.map(function (h) {
-        return '<option value="' + esc(h.id) + '">Stup ' + esc(h.number) + '</option>';
+        return '<option value="' + esc(h.id) + '">' + esc(hiveName(h)) + '</option>';
       }).join('');
       if (current && hives.some(function (h) { return h.id === current; })) sel.value = current;
     });
@@ -3653,11 +4022,11 @@ var qrcode = function() {
     var qc = QC_CLASS[h.queenColor];
     var media = Array.isArray(h.media) ? h.media : [];
     var dot = qc ? '<span class="dot qc-' + qc + '" title="Culoare matcă ' + esc(h.queenColor) + '"></span>' : '';
-    return '<article class="card">' +
+    return '<article class="card clickable" data-act="gallery" data-id="' + esc(h.id) + '">' +
       '<div class="card-top">' +
         '<div class="hive-badge">#' + esc(h.number) + '</div>' +
         '<div class="grow">' +
-          '<div class="card-title">Stup ' + esc(h.number) + ' ' + dot + '</div>' +
+          '<div class="card-title">' + esc(hiveName(h)) + ' ' + dot + '</div>' +
           '<div class="chips">' +
             '<span class="chip">' + esc(h.vatra || '—') + '</span>' +
             '<span class="chip">' + esc(h.hiveType || '—') + '</span>' +
@@ -3700,15 +4069,118 @@ var qrcode = function() {
     var h = db.hives.find(function (x) { return x.id === id; });
     if (!h) { toast('Stupul nu a fost găsit'); return; }
     activeHiveId = id;
-    renderHiveSheet();
     $('#hiveSheet').classList.remove('hidden');
     $('#hiveSheetBackdrop').classList.remove('hidden');
+    renderHiveSheet();
   }
 
   function closeHiveSheet() {
     activeHiveId = null;
+    stopAudioAnalysis();
     $('#hiveSheet').classList.add('hidden');
     $('#hiveSheetBackdrop').classList.add('hidden');
+  }
+
+  function climateChart(readings) {
+    if (!readings || !readings.length) return '';
+    var list = readings.slice(-12);
+    var w = 320, hh = 96, padX = 8, padY = 8;
+    var tMin = 28, tMax = 38;
+    function xAt(i) {
+      return list.length === 1 ? w / 2 : padX + i * (w - padX * 2) / (list.length - 1);
+    }
+    function yTemp(v) {
+      v = Math.max(tMin, Math.min(tMax, num(v)));
+      return padY + (1 - (v - tMin) / (tMax - tMin)) * (hh - padY * 2);
+    }
+    function yHum(v) {
+      v = Math.max(0, Math.min(100, num(v)));
+      return padY + (1 - v / 100) * (hh - padY * 2);
+    }
+    var bandTop = yTemp(36), bandBot = yTemp(33);
+    var tempPts = list.map(function (r, i) { return xAt(i).toFixed(1) + ',' + yTemp(r.temp).toFixed(1); }).join(' ');
+    var humPts = list.map(function (r, i) { return xAt(i).toFixed(1) + ',' + yHum(r.humidity).toFixed(1); }).join(' ');
+    var dots = list.map(function (r, i) {
+      return '<circle cx="' + xAt(i).toFixed(1) + '" cy="' + yTemp(r.temp).toFixed(1) + '" r="2.6" fill="#e8a11c"/>';
+    }).join('');
+    return '<div class="spark-wrap">' +
+      '<svg class="spark" viewBox="0 0 ' + w + ' ' + hh + '" preserveAspectRatio="none" role="img" aria-label="Istoric temperatură și umiditate">' +
+        '<rect x="0" y="' + bandTop.toFixed(1) + '" width="' + w + '" height="' + Math.max(0, bandBot - bandTop).toFixed(1) + '" fill="rgba(60,139,87,0.13)"/>' +
+        '<line x1="0" y1="' + bandTop.toFixed(1) + '" x2="' + w + '" y2="' + bandTop.toFixed(1) + '" stroke="#3c8b57" stroke-width="0.8" stroke-dasharray="3 3" opacity="0.6"/>' +
+        '<line x1="0" y1="' + bandBot.toFixed(1) + '" x2="' + w + '" y2="' + bandBot.toFixed(1) + '" stroke="#3c8b57" stroke-width="0.8" stroke-dasharray="3 3" opacity="0.6"/>' +
+        '<polyline points="' + humPts + '" fill="none" stroke="#3c6f9e" stroke-width="1.6" stroke-linejoin="round" opacity="0.75"/>' +
+        '<polyline points="' + tempPts + '" fill="none" stroke="#e8a11c" stroke-width="2.2" stroke-linejoin="round"/>' +
+        dots +
+      '</svg>' +
+      '<div class="spark-legend">' +
+        '<span class="lg-temp">Temperatură puiet</span>' +
+        '<span class="lg-hum">Umiditate</span>' +
+        '<span class="lg-band">Banda optimă 33–36°C</span>' +
+      '</div>' +
+    '</div>';
+  }
+
+  function audioDiagnostic(freq) {
+    var f = num(freq);
+    if (f >= 180 && f <= 250) return { label: 'Familie calmă, matcă activă', tone: 'ok' };
+    if (f >= 250 && f <= 350) return { label: 'Posibilă lipsă matcă / agitație', tone: 'warn' };
+    if (f >= 400 && f <= 500) return { label: 'Risc de roire', tone: 'bad' };
+    return { label: 'Zumzet neobișnuit – verifică stupul', tone: 'warn' };
+  }
+
+  function counterHtml(label, kind, value) {
+    return '<div class="counter">' +
+      '<span>' + esc(label) + '</span>' +
+      '<div class="counter-ctrl">' +
+        '<button class="round-btn tiny" type="button" data-act="counter" data-kind="' + kind + '" data-delta="-1" aria-label="Scade">' + ICONS.minus + '</button>' +
+        '<b>' + fmtNum(value) + '</b>' +
+        '<button class="round-btn tiny" type="button" data-act="counter" data-kind="' + kind + '" data-delta="1" aria-label="Adaugă">' + ICONS.plus + '</button>' +
+      '</div>' +
+    '</div>';
+  }
+
+  function journalHtml(list) {
+    if (!list || !list.length) return '<p class="mon-hint">Nicio alertă salvată în jurnal.</p>';
+    return '<div class="journal-list">' + list.slice().reverse().map(function (j) {
+      var isVespa = j.type === 'vespa';
+      var title = j.title || (isVespa ? 'Alertă Viespe Asiatică (Vespa velutina)' : 'Captură urdiniș');
+      return '<div class="journal-item ' + (isVespa ? 'vespa' : '') + '">' +
+        (j.photo ? '<img class="journal-thumb" src="' + j.photo + '" alt="Captură urdiniș" data-act="viewJournal" data-journal="' + esc(j.id) + '">' : '') +
+        '<div class="grow">' +
+          '<div class="card-title">' + esc(title) + '</div>' +
+          '<div class="chips">' +
+            '<span class="chip">' + fmtDate(j.date) + '</span>' +
+            (j.time ? '<span class="chip">' + esc(j.time) + '</span>' : '') +
+          '</div>' +
+        '</div>' +
+        '<button class="icon-btn danger" type="button" data-act="delJournal" data-journal="' + esc(j.id) + '" aria-label="Șterge alerta">' + ICONS.del + '</button>' +
+      '</div>';
+    }).join('') + '</div>';
+  }
+
+  function hiveInterventionsHtml(hiveId) {
+    var items = [];
+    db.treatments.forEach(function (t) {
+      if (t.hiveId === hiveId) items.push({ date: t.date, kind: 'Tratament', title: t.product, info: t.dosage || '' });
+    });
+    db.feedings.forEach(function (f) {
+      if (f.hiveId === hiveId) items.push({ date: f.date, kind: 'Hrănire', title: f.type, info: fmtNum(f.qty) + ' ' + (f.unit || '') });
+    });
+    items.sort(function (a, b) { return String(b.date || '').localeCompare(String(a.date || '')); });
+    if (!items.length) return '<p class="mon-hint">Nicio intervenție asociată strict acestui stup.</p>';
+    return '<div class="journal-list">' + items.slice(0, 15).map(function (i) {
+      return '<div class="interv-item">' +
+        '<div class="interv-icon">' + (i.kind === 'Tratament' ? 'T' : 'H') + '</div>' +
+        '<div class="grow">' +
+          '<div class="card-title">' + esc(i.title) + '</div>' +
+          '<div class="chips">' +
+            '<span class="chip">' + esc(i.kind) + '</span>' +
+            '<span class="chip">' + fmtDate(i.date) + '</span>' +
+            (i.info ? '<span class="chip">' + esc(i.info) + '</span>' : '') +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    }).join('') + '</div>';
   }
 
   function renderHiveSheet() {
@@ -3716,31 +4188,110 @@ var qrcode = function() {
     var sheet = $('#hiveSheet');
     if (!h || !sheet || sheet.classList.contains('hidden')) return;
     var media = Array.isArray(h.media) ? h.media : [];
-    $('#sheetTitle').textContent = 'Stup ' + h.number;
+    var climate = Array.isArray(h.climate) ? h.climate : [];
+    var audio = Array.isArray(h.audio) ? h.audio : [];
+    var journal = Array.isArray(h.journal) ? h.journal : [];
+    var latest = climate.length ? climate[climate.length - 1] : null;
+    var lastAudio = audio.length ? audio[audio.length - 1] : null;
+    var tempAlert = latest && (num(latest.temp) < 33 || num(latest.temp) > 36);
+    var lateSeason = new Date().getMonth() >= 8;
+    var dronesLate = num(h.drones) > 0 && lateSeason;
+
+    $('#sheetTitle').textContent = hiveName(h);
     $('#sheetBody').innerHTML =
       '<div class="chips">' +
-        '<span class="chip">' + esc(h.vatra || '—') + '</span>' +
-        '<span class="chip">' + esc(h.hiveType || '—') + '</span>' +
-        '<span class="chip state-' + (STATE_CLASS[h.state] || '') + '">' + esc(h.state || '—') + '</span>' +
+        '<span class="chip">' + esc(h.vatra || '?') + '</span>' +
+        '<span class="chip">' + esc(h.hiveType || '?') + '</span>' +
+        '<span class="chip state-' + (STATE_CLASS[h.state] || '') + '">' + esc(h.state || '?') + '</span>' +
+        (h.boxCode ? '<span class="chip">Cod lad?: ' + esc(h.boxCode) + '</span>' : '') +
         '<span class="chip">' + media.length + ' media</span>' +
       '</div>' +
-      (h.notes ? '<p class="note">' + esc(h.notes) + '</p>' : '') +
-      '<div class="tool-row">' +
-        '<button class="btn primary small" type="button" data-act="addPhoto" data-id="' + esc(h.id) + '">' + ICONS.camera + ' Fotografie</button>' +
-        '<button class="btn ghost small" type="button" data-act="addVideo" data-id="' + esc(h.id) + '">' + ICONS.video + ' Video</button>' +
+      '<div class="hive-meta-grid">' +
+        '<div class="hive-meta"><span class="hive-dot" style="background:' + hiveColorCss(h.hiveColor) + '"></span><b>Culoare lad?:</b> ' + esc(h.hiveColor || 'Lemn natural') + '</div>' +
+        '<div class="hive-meta"><b>Origine matc?:</b> ' + esc(h.queenOrigin || '?') + '</div>' +
+        '<div class="hive-meta"><b>Ras?:</b> ' + esc(h.queenBreed || '?') + '</div>' +
+        '<div class="hive-meta"><b>An / Culoare matc?:</b> ' + esc(h.year || '?') + ' / ' + esc(h.queenColor || '?') + '</div>' +
       '</div>' +
-      (media.length ? '<div class="media-grid">' + media.map(function (m) {
-        var isVideo = m.type === 'video';
-        return '<div class="media-item">' +
-          (isVideo
-            ? '<video src="' + m.data + '" muted playsinline preload="metadata" data-act="viewMedia" data-id="' + esc(h.id) + '" data-media="' + esc(m.id) + '"></video>'
-            : '<img src="' + m.data + '" alt="Media stup ' + esc(h.number) + '" loading="lazy" data-act="viewMedia" data-id="' + esc(h.id) + '" data-media="' + esc(m.id) + '">') +
-          '<button class="media-del" type="button" data-act="delMedia" data-id="' + esc(h.id) + '" data-media="' + esc(m.id) + '" aria-label="Șterge media">×</button>' +
-          '<span class="media-badge">' + (isVideo ? 'Video' : 'Foto') + '</span>' +
-        '</div>';
-      }).join('') + '</div>' : '<div class="media-empty">Nicio fotografie sau înregistrare încă. Adaugă prima dovadă din stup.</div>') +
-      '<p class="sheet-note">Pozele sunt comprimate automat. Limite: ' + MAX_PHOTOS + ' poze și ' + MAX_VIDEOS + ' video per stup.</p>';
+      '<div class="mon-block">' +
+        '<div class="mon-title">Observa?ii &amp; dictare vocal?</div>' +
+        '<div class="tool-row"><button class="btn ghost small" type="button" data-act="dictateNote">??? Dicteaz? observa?ie</button><span id="dictateStatus" class="mon-meta"></span></div>' +
+        '<textarea id="hiveNoteBox" class="note-box" rows="3" placeholder="Observa?ii stup...">' + esc(h.notes || '') + '</textarea>' +
+        '<div class="tool-row"><button class="btn primary small" type="button" data-act="saveHiveNote">Salveaz? observa?ia</button></div>' +
+      '</div>' +
+      '<div class="mon-block">' +
+        '<div class="mon-title">Termometru &amp; higrometru intern</div>' +
+        (tempAlert ? '<div class="alert-bad">Atenție: temperatura puietului (' + fmtNum(latest.temp) + '°C) este în afara intervalului optim 33°C – 36°C.</div>' : '') +
+        '<div class="mon-grid">' +
+          '<label class="field"><span>Temperatură puiet (°C)</span><input id="clTemp" type="number" min="0" max="60" step="0.1" inputmode="decimal" placeholder="ex: 34.5" value="' + (latest ? esc(latest.temp) : '34.5') + '"></label>' +
+          '<label class="field"><span>Umiditate (%)</span><input id="clHum" type="number" min="0" max="100" step="1" inputmode="numeric" placeholder="ex: 65" value="' + (latest ? esc(latest.humidity) : '65') + '"></label>' +
+        '</div>' +
+        '<div class="tool-row">' +
+          '<button class="btn primary small" type="button" data-act="addReading">Adaugă citire</button>' +
+          (latest ? '<span class="mon-latest">Ultima: ' + fmtNum(latest.temp) + '°C · ' + fmtNum(latest.humidity) + '%</span>' : '') +
+        '</div>' +
+        climateChart(climate) +
+        (latest ? '<div class="mon-meta">Actualizat ' + fmtDate(latest.date) + (latest.time ? ' · ' + esc(latest.time) : '') + '</div>' : '<p class="mon-hint">Nu există citiri. Adaugă prima măsurătoare internă.</p>') +
+      '</div>' +
+
+      '<div class="mon-block">' +
+        '<div class="mon-title">Analiză audio stup (microfon)</div>' +
+        '<p class="mon-hint">Măsoară zumzetul timp de 10 secunde cu microfonul telefonului și estimează frecvența dominantă.</p>' +
+        '<div class="tool-row">' +
+          '<button class="btn primary small" type="button" data-act="analyzeAudio">Analizează Zumzet (10s)</button>' +
+          '<button class="btn ghost small" type="button" data-act="simulateAudio">Simulează analiză audio</button>' +
+        '</div>' +
+        '<div id="audioStatus" class="audio-progress"></div>' +
+        (lastAudio
+          ? '<div class="audio-result ' + (lastAudio.tone || audioDiagnostic(lastAudio.freq).tone) + '">' +
+              '<b>' + fmtNum(lastAudio.freq) + ' Hz</b> · ' + esc(lastAudio.diagnostic || audioDiagnostic(lastAudio.freq).label) +
+              (lastAudio.simulated ? ' <span class="chip">simulat</span>' : '') +
+              '<div class="mon-meta">' + fmtDate(lastAudio.date) + (lastAudio.time ? ' · ' + esc(lastAudio.time) : '') + '</div>' +
+            '</div>'
+          : '<p class="mon-hint">Nicio analiză audio încă. Pornește o analiză sau folosește simularea.</p>') +
+      '</div>' +
+
+      '<div class="mon-block">' +
+        '<div class="mon-title">Urdiniș &amp; cameră</div>' +
+        '<label class="field"><span>Cameră IP / RTSP sau link video</span><input type="url" data-camera placeholder="rtsp://... sau http://..." value="' + esc(h.cameraUrl || '') + '"></label>' +
+        (h.cameraUrl ? '<div class="tool-row"><button class="btn ghost small" type="button" data-act="openCamera">Deschide camera</button></div>' : '') +
+        '<div class="counter-row">' +
+          counterHtml('Albine cu polen', 'pollenBees', h.pollenBees) +
+          counterHtml('Trântori', 'drones', h.drones) +
+        '</div>' +
+        (dronesLate ? '<div class="alert-warn">Trântori prezenți târziu în sezon. Verifică starea familiei și pregătirea pentru iernare.</div>' : '') +
+        '<div class="tool-row" style="margin-top:12px">' +
+          '<button class="btn ghost small" type="button" data-act="urdinisPhoto">Fotografiază urdinișul</button>' +
+          '<button class="btn danger small" type="button" data-act="vespa">Alertă Viespe Asiatică (Vespa velutina)</button>' +
+        '</div>' +
+        '<p class="mon-hint">Butonul roșu deschide camera telefonului și salvează fotografia cu data și ora în jurnalul stupului.</p>' +
+        journalHtml(journal) +
+      '</div>' +
+
+      '<div class="mon-block">' +
+        '<div class="mon-title">Istoric intervenții (acest stup)</div>' +
+        hiveInterventionsHtml(h.id) +
+      '</div>' +
+
+      '<div class="mon-block">' +
+        '<div class="mon-title">Galerie Foto Stup</div>' +
+        '<div class="tool-row">' +
+          '<button class="btn primary small" type="button" data-act="addPhoto" data-id="' + esc(h.id) + '">' + ICONS.camera + ' Fotografie</button>' +
+          '<button class="btn ghost small" type="button" data-act="addVideo" data-id="' + esc(h.id) + '">' + ICONS.video + ' Video</button>' +
+        '</div>' +
+        (media.length ? '<div class="media-grid">' + media.map(function (m) {
+          var isVideo = m.type === 'video';
+          return '<div class="media-item">' +
+            (isVideo
+              ? '<video src="' + m.data + '" muted playsinline preload="metadata" data-act="viewMedia" data-id="' + esc(h.id) + '" data-media="' + esc(m.id) + '"></video>'
+              : '<img src="' + m.data + '" alt="Media stup" loading="lazy" data-act="viewMedia" data-id="' + esc(h.id) + '" data-media="' + esc(m.id) + '">') +
+            '<button class="media-del" type="button" data-act="delMedia" data-id="' + esc(h.id) + '" data-media="' + esc(m.id) + '" aria-label="Șterge media">×</button>' +
+            '<span class="media-badge">' + (isVideo ? 'Video' : 'Foto') + '</span>' +
+          '</div>';
+        }).join('') + '</div>' : '<div class="media-empty">Nicio fotografie sau înregistrare încă. Adaugă prima dovadă din stup.</div>') +
+        '<p class="sheet-note">Pozele sunt comprimate automat. Limite: ' + MAX_PHOTOS + ' poze și ' + MAX_VIDEOS + ' video per stup.</p>' +
+      '</div>';
   }
+
 
   function addMedia(hiveId, item) {
     var h = db.hives.find(function (x) { return x.id === hiveId; });
@@ -3857,6 +4408,316 @@ var qrcode = function() {
     w.document.close();
   }
 
+  function setAudioStatus(msg) {
+    var el = document.getElementById('audioStatus');
+    if (el) el.textContent = msg;
+  }
+
+  function stopAudioAnalysis() {
+    if (audioTimer) { clearInterval(audioTimer); audioTimer = null; }
+    if (audioStream) {
+      audioStream.getTracks().forEach(function (t) { t.stop(); });
+      audioStream = null;
+    }
+    if (audioCtx) {
+      try { audioCtx.close(); } catch (err) {}
+      audioCtx = null;
+    }
+  }
+
+  function addClimateReading() {
+    var h = activeHive();
+    if (!h) return;
+    var tEl = document.getElementById('clTemp');
+    var hEl = document.getElementById('clHum');
+    var temp = tEl ? parseFloat(tEl.value) : NaN;
+    var hum = hEl ? parseFloat(hEl.value) : NaN;
+    if (!isFinite(temp) || !isFinite(hum)) { toast('Completează temperatura și umiditatea.'); return; }
+    if (temp < 0 || temp > 60) { toast('Temperatura trebuie între 0 și 60°C.'); return; }
+    if (hum < 0 || hum > 100) { toast('Umiditatea trebuie între 0 și 100%.'); return; }
+    if (!Array.isArray(h.climate)) h.climate = [];
+    h.climate.push({ id: uid(), date: today(), time: nowTime(), temp: temp, humidity: hum });
+    if (h.climate.length > 60) h.climate = h.climate.slice(-60);
+    save();
+    renderHiveSheet();
+    toast('Citire salvată');
+  }
+
+  function finishAudioAnalysis(hiveId, freq, simulated) {
+    var h = db.hives.find(function (x) { return x.id === hiveId; });
+    if (!h) return;
+    var d = audioDiagnostic(freq);
+    if (!Array.isArray(h.audio)) h.audio = [];
+    h.audio.push({
+      id: uid(),
+      date: today(),
+      time: nowTime(),
+      freq: freq,
+      diagnostic: d.label,
+      tone: d.tone,
+      simulated: !!simulated
+    });
+    if (h.audio.length > 30) h.audio = h.audio.slice(-30);
+    save();
+    if (activeHiveId === hiveId) renderHiveSheet();
+    toast(simulated ? 'Analiză audio simulată salvată' : 'Analiză audio salvată');
+  }
+
+  function analyzeAudio(simulate) {
+    var h = activeHive();
+    if (!h) return;
+    var hiveId = h.id;
+
+    if (simulate) {
+      var ranges = [[180, 250], [250, 350], [400, 500]];
+      var r = ranges[Math.floor(Math.random() * ranges.length)];
+      var f = Math.round(r[0] + Math.random() * (r[1] - r[0]));
+      finishAudioAnalysis(hiveId, f, true);
+      return;
+    }
+
+    if (!navigator.mediaDevices || typeof navigator.mediaDevices.getUserMedia !== 'function') {
+      setAudioStatus('Microfonul nu este disponibil. Folosește simularea.');
+      toast('Microfon indisponibil.');
+      return;
+    }
+
+    if (audioStream || audioCtx) stopAudioAnalysis();
+    setAudioStatus('Se cere accesul la microfon…');
+
+    navigator.mediaDevices.getUserMedia({ audio: true }).then(function (stream) {
+      audioStream = stream;
+      var Ctx = window.AudioContext || window.webkitAudioContext;
+      if (!Ctx) {
+        stopAudioAnalysis();
+        setAudioStatus('Web Audio API nu este suportat în acest browser.');
+        return;
+      }
+      audioCtx = new Ctx();
+      var src = audioCtx.createMediaStreamSource(stream);
+      var analyser = audioCtx.createAnalyser();
+      analyser.fftSize = 4096;
+      analyser.smoothingTimeConstant = 0.4;
+      src.connect(analyser);
+      var data = new Uint8Array(analyser.frequencyBinCount);
+      var binHz = audioCtx.sampleRate / analyser.fftSize;
+      var acc = new Float64Array(analyser.frequencyBinCount);
+      var count = 0;
+      var total = 50;
+      setAudioStatus('Ascult zumzetul… 0/10s');
+
+      audioTimer = setInterval(function () {
+        analyser.getByteFrequencyData(data);
+        for (var i = 0; i < data.length; i += 1) acc[i] += data[i];
+        count += 1;
+        setAudioStatus('Ascult zumzetul… ' + Math.round(count * 0.2) + '/10s');
+
+        if (count >= total) {
+          clearInterval(audioTimer);
+          audioTimer = null;
+          var best = 0;
+          var bestI = 0;
+          var lo = Math.max(1, Math.floor(100 / binHz));
+          var hi = Math.min(acc.length - 1, Math.ceil(1000 / binHz));
+          for (var j = lo; j <= hi; j += 1) {
+            var v = acc[j] / count;
+            if (v > best) { best = v; bestI = j; }
+          }
+          var freq = Math.round(bestI * binHz);
+          stopAudioAnalysis();
+          setAudioStatus('');
+          if (!freq) { toast('Nu am putut detecta o frecvență clară.'); return; }
+          finishAudioAnalysis(hiveId, freq, false);
+        }
+      }, 200);
+    }).catch(function () {
+      stopAudioAnalysis();
+      setAudioStatus('Accesul la microfon a fost refuzat. Folosește simularea.');
+      toast('Microfon refuzat sau indisponibil.');
+    });
+  }
+
+  function changeCounter(kind, delta) {
+    if (kind !== 'pollenBees' && kind !== 'drones') return;
+    var h = activeHive();
+    if (!h) return;
+    h[kind] = Math.max(0, num(h[kind]) + num(delta));
+    save();
+    renderHiveSheet();
+  }
+
+  function triggerVespaCapture() {
+    if (!activeHiveId) return;
+    var input = document.getElementById('vespaInput');
+    if (!input) return;
+    input.value = '';
+    input.click();
+  }
+
+  function triggerUrdinisCapture() {
+    if (!activeHiveId) return;
+    var input = document.getElementById('urdinisInput');
+    if (!input) return;
+    input.value = '';
+    input.click();
+  }
+
+  function saveJournalPhoto(hiveId, type, title, data) {
+    var h = db.hives.find(function (x) { return x.id === hiveId; });
+    if (!h) return;
+    if (!Array.isArray(h.journal)) h.journal = [];
+    h.journal.push({ id: uid(), type: type, title: title, date: today(), time: nowTime(), photo: data });
+    if (h.journal.length > 30) h.journal = h.journal.slice(-30);
+    save();
+    if (activeHiveId === hiveId) renderHiveSheet();
+  }
+
+  function handleUrdinisFile(file) {
+    if (!file || !activeHiveId) return;
+    var hiveId = activeHiveId;
+    compressPhoto(file, function (data) {
+      saveJournalPhoto(hiveId, 'inspect', 'Captură urdiniș', data);
+      toast('Fotografie urdiniș salvată');
+    });
+  }
+
+  function handleVespaFile(file) {
+    if (!file || !activeHiveId) return;
+    var hiveId = activeHiveId;
+    compressPhoto(file, function (data) {
+      saveJournalPhoto(hiveId, 'vespa', 'Alertă Viespe Asiatică (Vespa velutina)', data);
+      toast('Alertă Viespe Asiatică salvată');
+    });
+  }
+
+  function deleteJournal(journalId) {
+    var h = activeHive();
+    if (!h || !Array.isArray(h.journal)) return;
+    if (!confirm('Ștergi această alertă din jurnalul stupului?')) return;
+    h.journal = h.journal.filter(function (j) { return j.id !== journalId; });
+    save();
+    renderHiveSheet();
+    toast('Alertă ștearsă');
+  }
+
+  function viewJournalPhoto(journalId) {
+    var h = activeHive();
+    if (!h || !Array.isArray(h.journal)) return;
+    var j = h.journal.find(function (x) { return x.id === journalId; });
+    if (!j || !j.photo) return;
+    var w = window.open('', '_blank');
+    if (!w) { toast('Permite ferestrele pop-up.'); return; }
+    w.document.write('<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Urdiniș</title></head><body style="margin:0;background:#111;display:flex;align-items:center;justify-content:center;min-height:100vh"><img style="max-width:100%;max-height:100vh" src="' + j.photo + '" alt="Captură urdiniș"></body></html>');
+    w.document.close();
+  }
+
+  function openCamera() { var h = activeHive(); if (!h) return; var url = String(h.cameraUrl || '').trim(); if (!url) { toast('Adaug? URL-ul camerei.'); return; } window.open(url, '_blank', 'noopener'); }
+  function dictateHiveNote() {
+    var h = activeHive(); if (!h) return;
+    var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    var status = document.getElementById('dictateStatus');
+    if (!SR) { if (status) status.textContent = 'Dictarea vocal? nu este suportat?.'; toast('Dictare vocal? indisponibil?.'); return; }
+    var rec = new SR(); rec.lang = 'ro-RO'; rec.interimResults = false; rec.maxAlternatives = 1;
+    if (status) status.textContent = 'Ascult... vorbe?te acum.';
+    rec.onresult = function (e) { var text = e.results && e.results[0] && e.results[0][0] ? e.results[0][0].transcript : ''; var box = document.getElementById('hiveNoteBox'); if (box && text) { box.value = (box.value ? box.value + ' ' : '') + text; h.notes = box.value; save(); if (status) status.textContent = 'Text ad?ugat.'; } };
+    rec.onerror = function () { if (status) status.textContent = 'Eroare dictare. Verific? microfonul.'; };
+    rec.onend = function () { if (status && status.textContent.indexOf('Ascult') === 0) status.textContent = 'Dictare oprit?.'; };
+    try { rec.start(); } catch (err) { if (status) status.textContent = 'Nu pot porni dictarea.'; }
+  }
+  function saveHiveNote() { var h = activeHive(); if (!h) return; var box = document.getElementById('hiveNoteBox'); h.notes = box ? box.value : (h.notes || ''); save(); toast('Observa?ie salvat?'); renderHives(); }
+
+  function loadIcko2026() {
+    if (!Array.isArray(db.invoices)) db.invoices = [];
+    var addedInv = 0, addedStock = 0, skipped = 0;
+    ICKO_2026.forEach(function (inv) {
+      var code = String(inv.code || '').trim().toUpperCase();
+      if (!code) return;
+      var exists = db.invoices.some(function (x) { return String(x.code || '').trim().toUpperCase() === code; });
+      if (exists) { skipped++; return; }
+      db.invoices.push({ id: uid(), code: code, date: inv.date, total: inv.total, supplier: inv.supplier, client: inv.client, items: inv.items });
+      addedInv++;
+      inv.items.forEach(function (it) {
+        var name = String(it.name || '').trim();
+        var found = db.stock.find(function (st) { return String(st.name || '').trim().toLowerCase() === name.toLowerCase(); });
+        if (found) { found.qty = num(found.qty) + num(it.qty); if (!found.invoiceCode) found.invoiceCode = code; }
+        else { db.stock.push({ id: uid(), name: name, qty: num(it.qty), unit: it.unit || 'buc', minQty: 0, invoiceCode: code, supplier: inv.supplier }); addedStock++; }
+      });
+      db.expenses.push({ id: uid(), date: inv.date, category: 'Alte cheltuieli', description: 'Factur? ICKO ' + code, amount: num(inv.total), invoiceCode: code });
+    });
+    if (addedInv) { save(); renderAll(); toast('ICKO 2026: ' + addedInv + ' facturi ?nc?rcate, ' + addedStock + ' produse noi.'); }
+    else { toast('Nicio factur? nou?. ' + skipped + ' facturi ICKO exist? deja (anti-duplicat).'); }
+  }
+
+  function renderInvoices() {
+    var box = document.getElementById('invoiceSummary');
+    if (!box) return;
+    var inv = Array.isArray(db.invoices) ? db.invoices.slice().sort(function(a,b){return String(b.date).localeCompare(String(a.date));}) : [];
+    var total = sum(inv.map(function(x){return x.total;}));
+    var html = '<div class="card compact"><div class="card-top"><div><div class="card-title">Eviden?? facturi ICKO 2026 (Client 066345)</div><div class="chips"><span class="chip">' + inv.length + ' facturi</span><span class="chip">Total: ' + money(total) + ' TTC</span><span class="chip">Anti-duplicat dup? cod MBUC</span></div></div></div>';
+    if (inv.length) {
+      html += '<div class="invoice-box">' + inv.map(function(x){
+        return '<div style="margin-bottom:8px"><b>' + esc(x.code) + '</b> ? ' + fmtDate(x.date) + ' ? ' + money(x.total) +
+          '<div class="invoice-item">' + (Array.isArray(x.items)?x.items.map(function(it){return esc(it.qty)+' ? '+esc(it.name);}).join(', '):'') + '</div></div>';
+      }).join('') + '</div>';
+    } else {
+      html += '<p class="hint" style="margin-top:8px">Nicio factur? ICKO ?nc?rcat?. Folose?te butonul ??ncarc? facturi ICKO 2026?.</p>';
+    }
+    html += '</div>';
+    box.innerHTML = html;
+  }
+
+  function renderCalendarAlerts() {
+    var box = document.getElementById('calendarAlerts');
+    if (!box) return;
+    var m = new Date().getMonth() + 1;
+    var active = CALENDAR_IDF.filter(function (c) { return c.months.indexOf(m) >= 0; });
+    if (!active.length) { box.innerHTML = '<div class="calendar-alert ok"><b>Calendar apicol ?le-de-France:</b> nicio alarm? specific? ?n aceast? lun?.</div>'; return; }
+    box.innerHTML = '<div class="card compact"><div class="card-title">Calendar apicol ?le-de-France ? alarme active</div>' + active.map(function(c){
+      var cls = c.type === 'alert' ? 'calendar-alert bad' : c.type === 'admin' ? 'calendar-alert' : 'calendar-alert ok';
+      return '<div class="' + cls + '"><b>' + esc(c.title) + '</b><div>' + esc(c.text) + (c.url ? ' <a href="' + esc(c.url) + '" target="_blank" rel="noopener">Deschide NAPI</a>' : '') + '</div></div>';
+    }).join('') + '</div>';
+  }
+
+  function renderFeedRecipe() {
+    var out = document.getElementById('feedRecipeOut');
+    var sel = document.getElementById('feedRecipe');
+    var hivesInp = document.getElementById('feedRecipeHives');
+    if (!out || !sel) return;
+    var r = FEED_RECIPES.find(function(x){return x.id===sel.value;}) || FEED_RECIPES[0];
+    var n = Math.max(1, num(hivesInp ? hivesInp.value : 7) || 7);
+    var total = r.perHive * n;
+    var sugar = r.sugarKg * total;
+    var water = r.waterL * total;
+    out.innerHTML = '<b>' + esc(r.name) + '</b> <span class="chip">' + esc(r.season) + '</span><div class="hint" style="margin-top:6px">' + esc(r.desc) + ' ? ' + esc(r.note) + '</div>' +
+      '<div class="chips" style="margin-top:8px"><span class="chip">Doz?: ' + fmtNum(r.perHive) + ' ' + esc(r.unit) + ' / stup</span><span class="chip">Stupi: ' + n + '</span><span class="chip">Total: ' + fmtNum(total) + ' ' + esc(r.unit) + '</span>' +
+      (sugar>0?'<span class="chip">Zah?r: ~' + fmtNum(sugar) + ' kg</span>':'') + (water>0?'<span class="chip">Ap?: ~' + fmtNum(water) + ' l</span>':'') + '</div>';
+  }
+
+  function printRegistry() {
+    var hives = db.hives.slice().sort(function(a,b){return num(a.number)-num(b.number);});
+    var rowsTreat = db.treatments.slice().sort(function(a,b){return String(b.date).localeCompare(String(a.date));}).map(function(t){
+      return '<tr><td>' + fmtDate(t.date) + '</td><td>' + esc(hiveLabel(t.hiveId)) + '</td><td>' + esc(t.product||'') + '</td><td>' + esc(t.lot||'') + '</td><td>' + esc(t.dose||'') + '</td><td>' + fmtDate(t.until) + '</td><td>' + esc(t.notes||'') + '</td></tr>';
+    }).join('');
+    var rowsFeed = db.feedings.slice().sort(function(a,b){return String(b.date).localeCompare(String(a.date));}).map(function(ff){
+      return '<tr><td>' + fmtDate(ff.date) + '</td><td>' + esc(hiveLabel(ff.hiveId)) + '</td><td>' + esc(ff.type||'') + '</td><td>' + fmtNum(ff.qty) + ' ' + esc(ff.unit||'') + '</td><td>' + esc(ff.notes||'') + '</td></tr>';
+    }).join('');
+    var rowsHives = hives.map(function(h){
+      return '<tr><td>' + esc(h.number) + '</td><td>' + esc(h.name||'') + '</td><td>' + esc(h.boxCode||'') + '</td><td>' + esc(h.hiveColor||'') + '</td><td>' + esc(h.year||'') + '</td><td>' + esc(h.queenColor||'') + '</td><td>' + esc(h.queenOrigin||'') + '</td><td>' + esc(h.queenBreed||'') + '</td><td>' + esc(h.state||'') + '</td></tr>';
+    }).join('');
+    var w = window.open('', '_blank');
+    if (!w) { toast('Permite ferestrele pop-up pentru print.'); return; }
+    var html = '<!doctype html><html><head><meta charset="utf-8"><title>Registre d\'?levage</title>' +
+      '<style>body{font-family:Arial,sans-serif;margin:20px;color:#111} h1,h2{margin:0 0 8px} .meta{margin-bottom:16px;font-size:13px} table{width:100%;border-collapse:collapse;margin:8px 0 20px;font-size:12px} th,td{border:1px solid #333;padding:4px 6px;vertical-align:top} th{background:#f2f2f2} @media print{.noprint{display:none}}</style></head><body>' +
+      '<div class="noprint"><button onclick="window.print()">Print / Save PDF</button></div>' +
+      '<h1>Registre d\'?levage / Jurnal stupin?</h1>' +
+      '<div class="meta"><b>Declarant:</b> ' + esc(DECLARANT.name) + ' | <b>NAPI:</b> ' + esc(DECLARANT.napi) + ' | <b>CERFA:</b> ' + esc(DECLARANT.cerfa) + '<br><b>Adres?:</b> ' + esc(DECLARANT.address) + '<br><b>Amplasament:</b> ' + esc(DECLARANT.location) + '<br><b>Generat:</b> ' + fmtDate(today()) + '</div>' +
+      '<h2>Stupi (7)</h2><table><thead><tr><th>Nr</th><th>Nume</th><th>Cod lad?</th><th>Culoare lad?</th><th>An matc?</th><th>Culoare matc?</th><th>Origine matc?</th><th>Ras?</th><th>Stare</th></tr></thead><tbody>' + (rowsHives||'<tr><td colspan="9">?</td></tr>') + '</tbody></table>' +
+      '<h2>Registre tratamente</h2><table><thead><tr><th>Data</th><th>Stup</th><th>Produs</th><th>Lot</th><th>Doz?</th><th>R?gaz p?n?</th><th>Note</th></tr></thead><tbody>' + (rowsTreat||'<tr><td colspan="7">?</td></tr>') + '</tbody></table>' +
+      '<h2>Registre hr?niri</h2><table><thead><tr><th>Data</th><th>Stup</th><th>Tip hran?</th><th>Cantitate</th><th>Note</th></tr></thead><tbody>' + (rowsFeed||'<tr><td colspan="5">?</td></tr>') + '</tbody></table>' +
+      '</body></html>';
+    w.document.write(html); w.document.close(); w.focus();
+  }
+
   function qrSvgFor(text) {
     if (typeof qrcode === 'undefined') return '';
     try {
@@ -3880,7 +4741,7 @@ var qrcode = function() {
     wrap.innerHTML = hives.map(function (h) {
       var svg = qrSvgFor('stupina://hive/' + h.id);
       return '<div class="qr-card">' + (svg || empty('QR indisponibil')) +
-        '<div class="qr-label">Stup ' + esc(h.number) + '</div>' +
+        '<div class="qr-label">' + esc(hiveName(h)) + '</div>' +
         '<div class="qr-sub">' + esc(h.vatra || '') + '</div></div>';
     }).join('');
   }
@@ -3889,7 +4750,7 @@ var qrcode = function() {
     var wrap = $('#qrLabels');
     if (!wrap || !wrap.children.length) { toast('Nu există etichete de tipărit.'); return; }
     var area = $('#printArea');
-    area.innerHTML = '<h1 style="font:700 16pt sans-serif;margin:0 0 6mm">Stupina Nicoară — etichete QR</h1>' +
+    area.innerHTML = '<h1 style="font:700 16pt sans-serif;margin:0 0 6mm">Parc De La Saussaie — etichete QR</h1>' +
       '<div class="qr-grid">' + wrap.innerHTML + '</div>';
     window.print();
     setTimeout(function () { area.innerHTML = ''; }, 1200);
@@ -3966,9 +4827,9 @@ var qrcode = function() {
       return;
     }
     stopScan();
-    setScanStatus('Cod recunoscut: Stup ' + h.number + '.');
+    setScanStatus('Cod recunoscut: ' + hiveName(h) + '.');
     openHiveSheet(h.id);
-    toast('Stup ' + h.number + ' deschis');
+    toast(hiveName(h) + ' deschis');
   }
 
   function scanFromImage(file) {
@@ -4166,8 +5027,8 @@ var qrcode = function() {
       if (apple && icon192) apple.href = icon192;
       if (icon192 && icon512) {
         var manifest = {
-          name: 'Stupina Nicoară',
-          short_name: 'Stupina',
+          name: 'Parc De La Saussaie',
+          short_name: 'Saussaie',
           description: 'Manager apicol offline',
           start_url: location.href,
           scope: location.href.replace(/[^/]*$/, ''),
@@ -4556,8 +5417,8 @@ var qrcode = function() {
       setField(form, 'vatra', 'Staționar');
       setField(form, 'hiveType', 'Dadant 10 rame');
       setField(form, 'state', 'Puternică');
-      setField(form, 'broodFrames', 0);
-      setField(form, 'honeyFrames', 0);
+      setField(form, 'broodFrames', 5);
+      setField(form, 'honeyFrames', 3);
     }
 
     if (module === 'treatments') {
@@ -4672,6 +5533,7 @@ var qrcode = function() {
     }
 
     showForm(module);
+    if (module === 'hives') { var hc=form.elements.namedItem('hiveColor'); if(hc) updateHiveColorDot(hc); }
   }
 
   function finish(module, msg) {
@@ -4693,9 +5555,11 @@ var qrcode = function() {
     var fd = new FormData(e.target);
     var id = str(fd.get('id')) || uid();
     var existing = db.hives.find(function (x) { return x.id === id; });
+    var number = num(fd.get('number'));
     upsert(db.hives, {
       id: id,
-      number: num(fd.get('number')),
+      number: number,
+      name: 'Stup #' + number,
       vatra: str(fd.get('vatra')),
       hiveType: str(fd.get('hiveType')),
       state: str(fd.get('state')),
@@ -4704,7 +5568,13 @@ var qrcode = function() {
       broodFrames: num(fd.get('broodFrames')),
       honeyFrames: num(fd.get('honeyFrames')),
       notes: str(fd.get('notes')),
-      media: existing && Array.isArray(existing.media) ? existing.media : []
+      media: existing && Array.isArray(existing.media) ? existing.media : [],
+      climate: existing && Array.isArray(existing.climate) ? existing.climate : [],
+      audio: existing && Array.isArray(existing.audio) ? existing.audio : [],
+      journal: existing && Array.isArray(existing.journal) ? existing.journal : [],
+      cameraUrl: existing && existing.cameraUrl ? existing.cameraUrl : '',
+      pollenBees: existing ? num(existing.pollenBees) : 0,
+      drones: existing ? num(existing.drones) : 0
     });
     finish('hives', 'Stup salvat');
   }
@@ -4978,10 +5848,33 @@ var qrcode = function() {
     } else if (action === 'delMedia') deleteMedia(id, actEl.dataset.media);
     else if (action === 'viewMedia') viewMedia(id, actEl.dataset.media);
     else if (action === 'closeSheet') closeHiveSheet();
+    else if (action === 'seedHives') seedHives(true);
+    else if (action === 'loadIcko2026') loadIcko2026();
+    else if (action === 'printRegistry') printRegistry();
+    else if (action === 'addReading') addClimateReading();
+    else if (action === 'analyzeAudio') analyzeAudio(false);
+    else if (action === 'simulateAudio') analyzeAudio(true);
+    else if (action === 'counter') changeCounter(actEl.dataset.kind, num(actEl.dataset.delta));
+    else if (action === 'vespa') triggerVespaCapture();
+    else if (action === 'urdinisPhoto') triggerUrdinisCapture();
+    else if (action === 'delJournal') deleteJournal(actEl.dataset.journal);
+    else if (action === 'viewJournal') viewJournalPhoto(actEl.dataset.journal);
+    else if (action === 'openCamera') openCamera();
   }
 
   function handleChange(e) {
     var t = e.target;
+
+    if (t && t.matches && t.matches('[data-camera]')) {
+      var h = activeHive();
+      if (h) {
+        h.cameraUrl = str(t.value);
+        save();
+        renderHiveSheet();
+      }
+      return;
+    }
+
     var form = t.closest('form');
     if (!form) return;
 
@@ -5053,6 +5946,20 @@ var qrcode = function() {
       handleVideoFile(file);
     });
 
+    var vespaInput = document.getElementById('vespaInput');
+    if (vespaInput) vespaInput.addEventListener('change', function (e) {
+      var file = e.target.files && e.target.files[0];
+      e.target.value = '';
+      handleVespaFile(file);
+    });
+
+    var urdinisInput = document.getElementById('urdinisInput');
+    if (urdinisInput) urdinisInput.addEventListener('change', function (e) {
+      var file = e.target.files && e.target.files[0];
+      e.target.value = '';
+      handleUrdinisFile(file);
+    });
+
     var scanImage = document.getElementById('scanImage');
     if (scanImage) scanImage.addEventListener('change', function (e) {
       var file = e.target.files && e.target.files[0];
@@ -5073,15 +5980,43 @@ var qrcode = function() {
     });
   }
 
+  function updateHiveColorDot(sel) { if (!sel) return; var c = hiveColorCss(sel.value); sel.style.borderLeft = '14px solid ' + (c.indexOf('gradient')>=0 ? '#2563eb' : c); }
+
+  function seedIckoIfEmpty() {
+    var inv = Array.isArray(db.invoices) ? db.invoices : [];
+    var hasIcko = inv.some(function(x){return /^MBUC260/i.test(String(x.code||''));});
+    if (!hasIcko && db.stock.length === 0) { loadIcko2026(); }
+  }
+
+  function playCalendarBeepIfNeeded() {
+    var m = new Date().getMonth() + 1;
+    var active = CALENDAR_IDF.filter(function(c){return c.months.indexOf(m)>=0;});
+    if (!active.length) return;
+    var key = 'stupina.cal.beep.' + today();
+    try { if (localStorage.getItem(key)) return; localStorage.setItem(key, '1'); } catch(e) {}
+    try {
+      var Ctx = window.AudioContext || window.webkitAudioContext; if (!Ctx) return;
+      var ctx = new Ctx(); var o = ctx.createOscillator(); var g = ctx.createGain();
+      o.type='sine'; o.frequency.value = active.some(function(c){return c.type==='alert';}) ? 880 : 660;
+      g.gain.value = 0.03; o.connect(g); g.connect(ctx.destination); o.start();
+      setTimeout(function(){ try{o.stop(); ctx.close();}catch(e){} }, 350);
+    } catch(e) {}
+  }
+
   function init() {
     db = loadDB();
+    if (!db.hives.length) {
+      for (var n = 1; n <= 7; n += 1) db.hives.push(createStandardHive(n));
+      save();
+    }
     initBranding();
     fillStaticSelects();
     fillHiveSelects();
     ['hives', 'treatments', 'feedings', 'harvests', 'stock', 'expenses', 'sales'].forEach(resetForm);
     bind();
     renderAll();
-    setStatus('Salvare automată activă');
+    loadWeather();
+    setStatus('Stupina Nicoară • Salvare automată activă');
   }
 
   init();
