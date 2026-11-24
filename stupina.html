@@ -772,6 +772,23 @@
     #printArea .qr-label { font-size: 12pt; }
   }
   @page { size: A4; margin: 10mm; }
+  .tablet { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:6px; margin:8px 0; }
+  .tablet-btn { border:1px solid var(--line); border-radius:12px; padding:8px 4px; background:#fffdf8; font-size:11px; cursor:pointer; min-height:58px; }
+  .tablet-btn.active { outline:2px solid var(--gold); background:#fff6e3; }
+  .tablet-dot { width:12px; height:12px; border-radius:50%; display:inline-block; margin-right:4px; vertical-align:middle; }
+  .tablet-tag { font-size:11px; color:var(--muted); margin-top:4px; }
+  .visit-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+  .visit-toggle { border:1px solid var(--line); border-radius:14px; padding:10px; background:#fffdf8; font-size:13px; text-align:left; cursor:pointer; }
+  .visit-toggle.ok { border-color:#7aa36e; background:#effaf2; }
+  .visit-toggle.warn { border-color:#d48b2c; background:#fff6e3; }
+  .visit-toggle.bad { border-color:#c45a4a; background:#fff1ef; }
+  .map-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:10px; margin-top:10px; }
+  .map-hive { border:1px solid var(--line); border-radius:16px; padding:10px; background:rgba(255,255,255,.5); min-height:110px; }
+  .map-score { font-size:11px; color:var(--muted); margin-top:4px; }
+  .extra-grid { display:grid; gap:12px; }
+  .mini-list { display:grid; gap:8px; margin-top:8px; }
+  .mini-item { border:1px solid var(--line-soft); border-radius:12px; padding:8px 10px; background:rgba(255,255,255,.45); font-size:12px; }
+  @media print { .label-page { page-break-after: always; } .label-sheet { display:grid; grid-template-columns:repeat(2,1fr); gap:10mm; padding:10mm; } .honey-label { border:1px solid #333; border-radius:8px; padding:8mm; height:62mm; font-family:Arial,sans-serif; font-size:11px; color:#111; } .honey-label h3{margin:0 0 2mm;font-size:18px} .honey-label p{margin:1.2mm 0} }
 </style>
 </head>
 <body>
@@ -810,10 +827,15 @@
         <span class="kicker">Modul 1</span>
         <h2>Stupi &amp; familii</h2>
       </div>
-      <button class="btn primary small" type="button" data-add="hives">+ Stup</button>
+      <div class="tool-row">
+        <button class="btn ghost small" type="button" data-act="toggleHiveView" data-view="list">List?</button>
+        <button class="btn ghost small" type="button" data-act="toggleHiveView" data-view="map">Hart? Stupin?</button>
+        <button class="btn primary small" type="button" data-add="hives">+ Stup</button>
+      </div>
     </div>
-
     <div id="hivesSummary"></div>
+    <div id="nextVisitPrep" class="card compact hidden"></div>
+    <div id="hiveMap" class="hidden"></div>
 
     <form id="hivesForm" class="form-card hidden">
       <h3 class="form-title">Adaugă stup</h3>
@@ -938,13 +960,8 @@
   </section>
 
   <section id="tab-harvests" class="tab-panel">
-    <div class="module-head">
-      <div>
-        <span class="kicker">Modul 4</span>
-        <h2>Recolte &amp; produse</h2>
-      </div>
-      <button class="btn primary small" type="button" data-add="harvests">+ Recoltă</button>
-    </div>
+    <div class="module-head"><div><span class="kicker">Modul 4</span><h2>Recolte &amp; produse</h2></div><div class="tool-row"><button class="btn ghost small" type="button" data-act="printHoneyLabels">Genereaz? Etichete Borcane (A4 Print)</button><button class="btn primary small" type="button" data-add="harvests">+ Recolt?</button></div></div>
+    <div class="card card-form"><div class="form-head"><h2>Etichete borcane miere (Fran?a)</h2></div><div class="form-grid"><label class="field"><span>Tip miere</span><select id="labelHoneyType"><option>Miel de Fleurs</option><option>Miel d'Acacia</option><option>Miel de Tilleul</option><option>Miel de Ch?taignier</option></select></label><label class="field"><span>Greutate net?</span><select id="labelNet"><option value="1000 g">1000 g</option><option value="500 g">500 g</option></select></label><label class="field"><span>Data recoltei</span><input id="labelHarvestDate" type="date"></label><label class="field"><span>Num?r lot</span><input id="labelLot" placeholder="ex. LOT-2026-AC"></label></div><p class="hint">A4, 8 etichete/pagin?, men?iuni obligatorii Fran?a.</p></div>
 
     <div id="harvestsSummary"></div>
     <div id="harvestBreakdown"></div>
@@ -1115,6 +1132,7 @@
     <p class="scan-status">Lipește eticheta pe stup. Scanezi codul și se deschide fișa stupului.</p>
     <div id="qrLabels" class="qr-grid"></div>
 
+    <div class="qr-panel"><div class="sub-head"><h3>Unelte Utile Extra</h3></div><div class="extra-grid"><div class="mon-block"><div class="mon-title">A) Eviden?? Auto & Utilitare</div><div class="form-grid"><label class="field"><span>Vehicul</span><input id="vehName" placeholder="Mercedes / Iveco Daily"></label><label class="field"><span>CT expir?</span><input id="vehCT" type="date"></label><label class="field"><span>Asigurare expir?</span><input id="vehIns" type="date"></label><label class="field"><span>Revizie km</span><input id="vehKm" placeholder="185000 km"></label><label class="field field-full"><span>Jurnal repara?ii/piese</span><input id="vehRepair" placeholder="ulei, filtre, fr?ne"></label></div><div class="tool-row"><button class="btn primary small" type="button" data-act="addVehicle">Adaug? vehicul</button></div><div id="vehicleList" class="mini-list"></div></div><div class="mon-block"><div class="mon-title">B) Calculator Devize & Materiale (Fran?a)</div><div class="form-grid"><label class="field"><span>Descriere</span><input id="devDesc" placeholder="Pose grillage"></label><label class="field"><span>Cantitate</span><input id="devQty" type="number" step="0.01" value="1"></label><label class="field"><span>Pre? unitar ?</span><input id="devUnit" type="number" step="0.01" value="0"></label><label class="field"><span>TVA</span><select id="devVat"><option value="10">10%</option><option value="20">20%</option></select></label></div><div class="tool-row"><button class="btn ghost small" type="button" data-act="addDevisLine">Adaug? linie</button><button class="btn primary small" type="button" data-act="printDevis">Genereaz? Devis estimatif</button></div><div id="devisList" class="mini-list"></div></div><div class="mon-block"><div class="mon-title">C) ?abloane Scrisori Oficiale Fran?a</div><div class="form-grid"><label class="field"><span>Destinatar</span><select id="letterType"><option value="mairie">Mairie</option><option value="assurance">Assurance</option><option value="impots">Imp?ts</option><option value="cpam">CPAM / Ameli</option></select></label><label class="field field-full"><span>Obiect / detalii</span><input id="letterSubject" placeholder="Demande d'information"></label></div><div class="tool-row"><button class="btn primary small" type="button" data-act="printLetter">Genereaz? scrisoare</button></div></div></div></div>
     <div class="qr-panel">
       <div class="sub-head"><h3>Scanner cod QR</h3></div>
       <div class="scan-status" id="scanStatus">Pornește camera și îndreaptă-o spre eticheta QR.</div>
@@ -3705,7 +3723,7 @@ var qrcode = function() {
   ];
 
   function emptyDB() {
-    return { version: 1, hives: [], treatments: [], feedings: [], harvests: [], stock: [], expenses: [], sales: [], invoices: [] };
+    return { version: 1, hives: [], treatments: [], feedings: [], harvests: [], stock: [], expenses: [], sales: [], invoices: [], vehicles: [], devis: [], letters: [] };
   }
 
   function createStandardHive(n) {
@@ -3731,7 +3749,14 @@ var qrcode = function() {
       journal: [],
       cameraUrl: '',
       pollenBees: 0,
-      drones: 0
+      drones: 0,
+      tabletState: 'ok',
+      tabletLot: 'S-' + String(n||1).padStart(2,'0'),
+      tabletDate: todayISO(),
+      queenScores: {gentleness:3,hygiene:3,honey:3,swarm:3},
+      visitChecklist: {queenSeen:false,spaceOk:false,reservesOk:false,swarmCells:false},
+      visitChecklistDate: '',
+      nextVisitPrep: ''
     };
   }
 
@@ -3849,7 +3874,7 @@ var qrcode = function() {
   function normalizeDB(raw) {
     var base = emptyDB();
     if (!raw || typeof raw !== 'object') return base;
-    ['hives', 'treatments', 'feedings', 'harvests', 'stock', 'expenses', 'sales', 'invoices'].forEach(function (k) {
+    ['hives','treatments','feedings','harvests','stock','expenses','sales','invoices','vehicles','devis','letters'].forEach(function (k) {
       if (Array.isArray(raw[k])) {
         base[k] = raw[k].filter(function (x) { return x && typeof x === 'object'; }).map(function (x) {
           if (!x.id) x.id = uid();
@@ -3861,6 +3886,15 @@ var qrcode = function() {
             if (!Array.isArray(x.audio)) x.audio = [];
             if (!Array.isArray(x.journal)) x.journal = [];
             if (x.cameraUrl == null) x.cameraUrl = '';
+            if (!x.tabletState) x.tabletState = 'ok';
+            if (!x.tabletLot) x.tabletLot = 'S-' + String(x.number||1).padStart(2,'0');
+            if (!x.tabletDate) x.tabletDate = x.installedDate || todayISO();
+            if (!x.queenScores || typeof x.queenScores!=='object') x.queenScores = {gentleness:3,hygiene:3,honey:3,swarm:3};
+            ['gentleness','hygiene','honey','swarm'].forEach(function(sk){ var v=parseInt(x.queenScores[sk],10); x.queenScores[sk]=isNaN(v)?3:Math.max(1,Math.min(5,v)); });
+            if (!x.visitChecklist || typeof x.visitChecklist!=='object') x.visitChecklist = {queenSeen:false,spaceOk:false,reservesOk:false,swarmCells:false};
+            ['queenSeen','spaceOk','reservesOk','swarmCells'].forEach(function(ck){ x.visitChecklist[ck]=!!x.visitChecklist[ck]; });
+            if (x.visitChecklistDate==null) x.visitChecklistDate='';
+            if (x.nextVisitPrep==null) x.nextVisitPrep='';
             if (x.pollenBees == null) x.pollenBees = 0;
             if (x.drones == null) x.drones = 0;
             if (x.queenOrigin == null) x.queenOrigin = '';
@@ -4018,37 +4052,34 @@ var qrcode = function() {
     });
   }
 
-  function hiveCard(h) {
+    function hiveCard(h) {
     var qc = QC_CLASS[h.queenColor];
-    var media = Array.isArray(h.media) ? h.media : [];
-    var dot = qc ? '<span class="dot qc-' + qc + '" title="Culoare matcă ' + esc(h.queenColor) + '"></span>' : '';
+    var dot = qc ? '<span class="dot qc-' + qc + '" title="Culoare matc? ' + esc(h.queenColor) + '"></span>' : '';
+    var st = tabletStateMeta(h.tabletState);
     return '<article class="card clickable" data-act="gallery" data-id="' + esc(h.id) + '">' +
       '<div class="card-top">' +
         '<div class="hive-badge">#' + esc(h.number) + '</div>' +
         '<div class="grow">' +
           '<div class="card-title">' + esc(hiveName(h)) + ' ' + dot + '</div>' +
           '<div class="chips">' +
-            '<span class="chip">' + esc(h.vatra || '—') + '</span>' +
-            '<span class="chip">' + esc(h.hiveType || '—') + '</span>' +
-            '<span class="chip state-' + (STATE_CLASS[h.state] || '') + '">' + esc(h.state || '—') + '</span>' +
+            '<span class="chip">' + esc(h.vatra || '?') + '</span>' +
+            '<span class="chip">' + esc(h.hiveType || '?') + '</span>' +
+            '<span class="chip state-' + (STATE_CLASS[h.state] || '') + '">' + esc(h.state || '?') + '</span>' +
+            '<span class="chip" style="border-color:'+st.color+';color:'+st.color+'">' + esc(st.label) + '</span>' +
           '</div>' +
+          '<div class="tablet-tag">' + tabletTag(h) + '</div>' +
         '</div>' +
         '<div class="icon-actions">' +
-          '<button class="icon-btn" type="button" data-act="edit" data-module="hives" data-id="' + esc(h.id) + '" aria-label="Editează stupul">' + ICONS.edit + '</button>' +
-          '<button class="icon-btn danger" type="button" data-act="del" data-module="hives" data-id="' + esc(h.id) + '" aria-label="Șterge stupul">' + ICONS.del + '</button>' +
+          '<button class="icon-btn" type="button" data-act="edit" data-module="hives" data-id="' + esc(h.id) + '" aria-label="Editeaz? stupul">' + ICONS.edit + '</button>' +
+          '<button class="icon-btn danger" type="button" data-act="del" data-module="hives" data-id="' + esc(h.id) + '" aria-label="?terge stupul">' + ICONS.del + '</button>' +
         '</div>' +
       '</div>' +
       '<div class="mini-metrics">' +
         '<div><b>' + fmtNum(h.broodFrames) + '</b><span>rame cu puiet</span></div>' +
-        '<div><b>' + fmtNum(h.honeyFrames) + '</b><span>rame cu miere</span></div>' +
-        '<div><b>' + esc(h.year || '—') + '</b><span>an matcă · ' + esc(h.queenColor || '—') + '</span></div>' +
+        '<div><b>' + fmtNum(h.honeyFrames) + '</b><span>rame miere</span></div>' +
+        '<div><b>' + esc(h.queenYear || '?') + '</b><span>an matc?</span></div>' +
       '</div>' +
-      mediaStrip(h) +
-      '<div class="card-actions">' +
-        '<button class="btn small ghost" type="button" data-act="gallery" data-id="' + esc(h.id) + '">' + ICONS.camera + ' Galerie · ' + media.length + '</button>' +
-        '<button class="btn small ghost" type="button" data-act="addPhoto" data-id="' + esc(h.id) + '">Adaugă poză</button>' +
-      '</div>' +
-      (h.notes ? '<p class="note">' + esc(h.notes) + '</p>' : '') +
+      (h.notes ? '<p class="card-note">' + esc(h.notes) + '</p>' : '') +
     '</article>';
   }
 
@@ -4183,6 +4214,28 @@ var qrcode = function() {
     }).join('') + '</div>';
   }
 
+  function renderHiveTabletUI(h){
+    var el=document.getElementById('hiveTablet'); if(!el) return;
+    el.innerHTML=(TABLET_STATES||[]).map(function(st){ return '<button type="button" class="tablet-btn '+(h.tabletState===st.id?'active':'')+'" data-act="setTabletState" data-state="'+st.id+'"><span class="tablet-dot" style="background:'+st.color+'"></span>'+esc(st.label)+'</button>'; }).join('');
+    var ecl=document.getElementById('tabletEclozion');
+    if(ecl) ecl.innerHTML = h.tabletState==='matca_tanara' ? 'Eclozionare estimat? (ziua 12): <b>'+esc(eclozionDay(h.tabletDate))+'</b>' : (h.tabletLot?('<b>'+esc(h.tabletLot)+'</b> ? '+esc(h.tabletDate||'')):'');
+    var lot=document.getElementById('tabletLotInput'); if(lot) lot.onchange=function(){ h.tabletLot=this.value.trim(); save(); renderHiveSheet(); renderHives(); };
+    var dt=document.getElementById('tabletDateInput'); if(dt) dt.onchange=function(){ h.tabletDate=this.value; save(); renderHiveSheet(); renderHives(); };
+  }
+  function renderVisitChecklistUI(h){
+    var el=document.getElementById('visitChecklist'); if(!el) return;
+    var items=[['queenSeen','Matc? v?zut? / Ou? proaspete','ok'],['spaceOk','Spa?iu suficient','ok'],['reservesOk','Rezerve hran? suficiente','ok'],['swarmCells','Botci de roire','bad']];
+    var c=h.visitChecklist||{};
+    el.innerHTML=items.map(function(it){ var v=!!c[it[0]]; var cls=it[0]==='swarmCells' ? (v?'bad':'ok') : (v?'ok':'warn'); var label=it[0]==='swarmCells' ? (v?'Botci de roire: DA':'Botci de roire: NU') : (v?it[1]+': DA':it[1]+': NU'); return '<button type="button" class="visit-toggle '+cls+'" data-act="toggleVisit" data-key="'+it[0]+'">'+esc(label)+'</button>'; }).join('');
+    var prep=document.getElementById('nextVisitPrepInput'); if(prep) prep.onchange=function(){ h.nextVisitPrep=this.value.trim(); h.visitChecklistDate=todayISO(); save(); renderNextVisitPrep(db.hives); };
+  }
+  function renderQueenScoresUI(h){
+    var el=document.getElementById('queenScoresGrid'); if(!el) return;
+    var defs=[['gentleness','Bl?nde?e'],['hygiene','Igien?'],['honey','Produc?ie miere'],['swarm','Tendin?? roire']];
+    var sc=h.queenScores||{};
+    el.innerHTML=defs.map(function(d){ return '<label class="field"><span>'+d[1]+' (1-5)</span><input type="number" min="1" max="5" value="'+(num(sc[d[0]])||3)+'" data-act-score="'+d[0]+'"></label>'; }).join('')+'<div class="field"><span>Scor mediu</span><div class="chip ok" id="queenScoreAvg">'+queenScoreAvg(h)+' / 5</div></div>';
+    $all('[data-act-score]').forEach(function(inp){ inp.onchange=function(){ var k=this.getAttribute('data-act-score'); h.queenScores=h.queenScores||{}; h.queenScores[k]=Math.max(1,Math.min(5,parseInt(this.value,10)||3)); save(); var avg=document.getElementById('queenScoreAvg'); if(avg) avg.textContent=queenScoreAvg(h)+' / 5'; renderHives(); }; });
+  }
   function renderHiveSheet() {
     var h = activeHive();
     var sheet = $('#hiveSheet');
@@ -4213,7 +4266,10 @@ var qrcode = function() {
         '<div class="hive-meta"><b>An / Culoare matc?:</b> ' + esc(h.year || '?') + ' / ' + esc(h.queenColor || '?') + '</div>' +
       '</div>' +
       '<div class="mon-block">' +
-        '<div class="mon-title">Observa?ii &amp; dictare vocal?</div>' +
+        '<div class="mon-title">Tableta digital? a stupului</div><div class="tablet" id="hiveTablet"></div><div class="tablet-tag" id="tabletEclozion"></div><div class="form-grid" style="margin-top:8px"><label class="field"><span>Lot/serie</span><input id="tabletLotInput" type="text" value="' + esc(h.tabletLot||'') + '"></label><label class="field"><span>Data eveniment</span><input id="tabletDateInput" type="date" value="' + esc(h.tabletDate||todayISO()) + '"></label></div></div>' +
+      '<div class="mon-block"><div class="mon-title">Checklist rapid vizit?</div><div class="visit-grid" id="visitChecklist"></div><label class="field" style="margin-top:8px"><span>Preg?tire vizit? urm?toare</span><input id="nextVisitPrepInput" type="text" value="' + esc(h.nextVisitPrep||'') + '" placeholder="ex. aduc cat, sirop 1:1"></label></div>' +
+      '<div class="mon-block"><div class="mon-title">Performan?? Matc? 2026</div><div class="form-grid" id="queenScoresGrid"></div></div>' +
+      '<div class="mon-block"><div class="mon-title">Observa?ii &amp; dictare vocal?</div>' +
         '<div class="tool-row"><button class="btn ghost small" type="button" data-act="dictateNote">??? Dicteaz? observa?ie</button><span id="dictateStatus" class="mon-meta"></span></div>' +
         '<textarea id="hiveNoteBox" class="note-box" rows="3" placeholder="Observa?ii stup...">' + esc(h.notes || '') + '</textarea>' +
         '<div class="tool-row"><button class="btn primary small" type="button" data-act="saveHiveNote">Salveaz? observa?ia</button></div>' +
@@ -4289,7 +4345,10 @@ var qrcode = function() {
           '</div>';
         }).join('') + '</div>' : '<div class="media-empty">Nicio fotografie sau înregistrare încă. Adaugă prima dovadă din stup.</div>') +
         '<p class="sheet-note">Pozele sunt comprimate automat. Limite: ' + MAX_PHOTOS + ' poze și ' + MAX_VIDEOS + ' video per stup.</p>' +
-      '</div>';
+      '</div>';    renderHiveTabletUI(h);
+    renderVisitChecklistUI(h);
+    renderQueenScoresUI(h);
+
   }
 
 
@@ -5222,20 +5281,34 @@ var qrcode = function() {
     '</article>';
   }
 
-  function renderHives() {
-    var hives = db.hives.slice().sort(function (a, b) { return num(a.number) - num(b.number); });
-    var strong = hives.filter(function (h) { return h.state === 'Puternică'; }).length;
-    var weak = hives.filter(function (h) { return h.state === 'Slabă' || h.state === 'Orfană'; }).length;
-    var brood = sum(hives.map(function (h) { return h.broodFrames; }));
 
+  function tabletStateMeta(id){ return (TABLET_STATES||[]).find(function(x){return x.id===id;}) || {id:'ok',label:'Matc? ?mperecheat? / Familie OK',color:'#5fa86b'}; }
+  function tabletTag(h){ var st=tabletStateMeta(h.tabletState); return '<span class="tablet-dot" style="background:'+st.color+'"></span><b>'+esc(h.tabletLot||('S-'+String(h.number||1).padStart(2,'0')))+'</b> ? '+esc(h.tabletDate||todayISO()); }
+  function eclozionDay(dateStr){ var d=parseDate(dateStr||todayISO()); if(!d) return ''; d.setDate(d.getDate()+12); return toISO(d); }
+  function hiveViewMode(){ return localStorage.getItem('stupina.hiveView')==='map'?'map':'list'; }
+  function setHiveViewMode(m){ localStorage.setItem('stupina.hiveView',m); renderHives(); }
+  function queenScoreAvg(h){ var sc=h.queenScores||{}; var v=['gentleness','hygiene','honey','swarm'].map(function(k){return num(sc[k])||3;}); return (sum(v)/v.length).toFixed(1); }
+  function renderNextVisitPrep(hives){ var box=document.getElementById('nextVisitPrep'); if(!box) return; var items=[]; (hives||db.hives||[]).forEach(function(h){ var c=h.visitChecklist||{}; var prep=[]; if(!c.spaceOk) prep.push('cat/l?di??'); if(!c.reservesOk) prep.push('hr?nire'); if(c.swarmCells) prep.push('control roire'); if(h.tabletState==='depopulat') prep.push('interven?ie urgent?'); if(h.nextVisitPrep) prep.push(h.nextVisitPrep); if(prep.length) items.push('<div class="mini-item"><b>'+esc(hiveName(h))+'</b>: '+esc(prep.join(', '))+'</div>'); }); box.classList.remove('hidden'); box.innerHTML='<div class="form-head"><h2>Ce trebuie s? preg?tesc pentru vizita urm?toare</h2></div>'+(items.length?'<div class="mini-list">'+items.join('')+'</div>':'<p class="hint">Nimic urgent marcat ?n checklist.</p>'); }
+  function renderHiveMap(hives){ var el=document.getElementById('hiveMap'); if(!el) return; el.innerHTML='<div class="card"><div class="form-head"><h2>Hart? Stupin? & Performan?? Matc? 2026</h2></div><div class="map-grid">'+(hives||[]).map(function(h){ var st=tabletStateMeta(h.tabletState); var c=hiveColorCss(h.hiveColor||'Lemn natural'); var sc=h.queenScores||{}; return '<div class="map-hive" style="border-color:'+c.border+';background:'+c.fill+'"><div style="display:flex;justify-content:space-between;gap:6px"><b>'+esc(hiveName(h))+'</b><span class="chip" style="border-color:'+st.color+';color:'+st.color+'">'+esc(st.label)+'</span></div><div class="tablet-tag">'+tabletTag(h)+'</div><div class="map-score">Bl?nde?e '+(num(sc.gentleness)||3)+'/5 ? Igien? '+(num(sc.hygiene)||3)+'/5<br>Produc?ie '+(num(sc.honey)||3)+'/5 ? Roire '+(num(sc.swarm)||3)+'/5<br><b>Scor mediu: '+queenScoreAvg(h)+'</b></div></div>'; }).join('')+'</div></div>'; }
+    function renderHives() {
+    var hives = db.hives.slice().sort(function (a, b) { return num(a.number) - num(b.number); });
+    var strong = hives.filter(function (h) { return h.state === 'Puternic?'; }).length;
+    var weak = hives.filter(function (h) { return h.state === 'Slab?' || h.state === 'Orfan?'; }).length;
+    var brood = sum(hives.map(function (h) { return h.broodFrames; }));
     $('#hivesSummary').innerHTML = stats([
       { value: hives.length, label: 'stupi' },
       { value: strong, label: 'familii puternice', tone: 'ok' },
       { value: weak, label: 'slabe / orfane', tone: weak ? 'bad' : '' },
       { value: fmtNum(brood), label: 'rame cu puiet' }
     ]);
-
-    $('#hivesList').innerHTML = hives.length ? hives.map(hiveCard).join('') : empty('Niciun stup adăugat încă.');
+    renderNextVisitPrep(hives);
+    var mode=hiveViewMode();
+    var map=document.getElementById('hiveMap'), list=document.getElementById('hivesList');
+    if(map) map.classList.toggle('hidden', mode!=='map');
+    if(list) list.classList.toggle('hidden', mode==='map');
+    $all('[data-act="toggleHiveView"]').forEach(function(btn){ btn.classList.toggle('primary', btn.dataset.view===mode); btn.classList.toggle('ghost', btn.dataset.view!==mode); });
+    if(mode==='map') renderHiveMap(hives);
+    else $('#hivesList').innerHTML = hives.length ? hives.map(hiveCard).join('') : empty('Niciun stup ad?ugat ?nc?.');
     fillHiveSelects();
   }
 
@@ -5808,6 +5881,28 @@ var qrcode = function() {
     $('#financePanel').classList.toggle('hidden', seg !== 'finance');
   }
 
+  function printHoneyLabels(){
+    var type=(document.getElementById('labelHoneyType')||{}).value||'Miel de Fleurs';
+    var net=(document.getElementById('labelNet')||{}).value||'500 g';
+    var hd=(document.getElementById('labelHarvestDate')||{}).value||todayISO();
+    var lot=((document.getElementById('labelLot')||{}).value||('LOT-'+new Date().getFullYear())).trim();
+    var d=parseDate(hd)||new Date(); var dd=new Date(d.getTime()); dd.setFullYear(dd.getFullYear()+2);
+    var ddm='? consommer de pr?f?rence avant fin '+pad(dd.getMonth()+1)+'/'+dd.getFullYear();
+    var harvest='R?colt? le: '+fmtDate(hd);
+    var label='<div class="honey-label"><h3>'+esc(type)+'</h3><p><b>Poids net:</b> '+esc(net)+'</p><p>'+esc(harvest)+'</p><p><b>Lot:</b> '+esc(lot)+'</p><p>'+esc(ddm)+'</p><p><b>Origine:</b> France</p><p><b>Producteur:</b> ILIE NICOARA ? 15 route de Fontainebleau, 94400 Vitry-sur-Seine (NAPI: A5200524)</p><p style="font-size:9px">A conserver ? l\'abri de la chaleur et de l\'humidit?. Le miel ne convient pas aux enfants de moins de 12 mois.</p></div>';
+    var labels=Array(8).fill(label).join('');
+    var w=window.open('','_blank'); if(!w){ toast('Permite fereastra de print.'); return; }
+    w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>Etichete miere</title><style>@page{size:A4;margin:0}body{margin:0}.label-sheet{display:grid;grid-template-columns:1fr 1fr;gap:10mm;padding:10mm;box-sizing:border-box}.honey-label{border:1px solid #333;border-radius:8px;padding:8mm;height:62mm;box-sizing:border-box;font-family:Arial,sans-serif;font-size:11px;color:#111}.honey-label h3{margin:0 0 2mm;font-size:18px}.honey-label p{margin:1.2mm 0}</style></head><body><div class="label-sheet">'+labels+'</div><scr'+'ipt>window.onload=function(){window.print();}</scr'+'ipt></body></html>');
+    w.document.close();
+  }
+  function valOf(id){ var el=document.getElementById(id); return el?String(el.value||'').trim():''; }
+  function renderVehicles(){ var el=document.getElementById('vehicleList'); if(!el) return; var list=db.vehicles||[]; el.innerHTML=list.length?list.map(function(v){ return '<div class="mini-item"><b>'+esc(v.name)+'</b> ? CT '+esc(v.ct||'?')+' ? Asig. '+esc(v.ins||'?')+' ? Revizie '+esc(v.km||'?')+'<br>'+esc(v.repair||'')+' <button class="link-danger" data-act="delVehicle" data-id="'+esc(v.id)+'">?terge</button></div>'; }).join(''):'<div class="hint">Niciun vehicul.</div>'; }
+  function addVehicle(){ var v={id:uid(),name:valOf('vehName'),ct:valOf('vehCT'),ins:valOf('vehIns'),km:valOf('vehKm'),repair:valOf('vehRepair')}; if(!v.name){toast('Completeaz? vehiculul.');return;} db.vehicles=db.vehicles||[]; db.vehicles.unshift(v); save(); renderVehicles(); ['vehName','vehCT','vehIns','vehKm','vehRepair'].forEach(function(id){var el=document.getElementById(id); if(el) el.value='';}); toast('Vehicul ad?ugat'); }
+  function renderDevis(){ var el=document.getElementById('devisList'); if(!el) return; var list=db.devis||[]; var total=sum(list.map(function(x){return num(x.qty)*num(x.unit);})); el.innerHTML=list.length?list.map(function(x){ return '<div class="mini-item">'+esc(x.desc)+' ? '+fmtNum(x.qty)+' x '+fmtNum(x.unit)+'? TVA '+esc(x.vat)+'% <button class="link-danger" data-act="delDevis" data-id="'+esc(x.id)+'">?terge</button></div>'; }).join('')+'<div class="mini-item"><b>Total HT estimat:</b> '+total.toFixed(2)+' ?</div>':'<div class="hint">Nicio linie deviz.</div>'; }
+  function addDevisLine(){ var x={id:uid(),desc:valOf('devDesc'),qty:num(valOf('devQty')||1),unit:num(valOf('devUnit')),vat:valOf('devVat')||'10'}; if(!x.desc){toast('Completeaz? descrierea.');return;} db.devis=db.devis||[]; db.devis.push(x); save(); renderDevis(); var d=document.getElementById('devDesc'); if(d) d.value=''; }
+  function printDevis(){ var list=db.devis||[]; if(!list.length){toast('Adaug? linii ?n deviz.');return;} var ht=0,ttc=0; var rows=list.map(function(x){ var lht=num(x.qty)*num(x.unit); var lttc=lht*(1+num(x.vat)/100); ht+=lht; ttc+=lttc; return '<tr><td>'+esc(x.desc)+'</td><td>'+fmtNum(x.qty)+'</td><td>'+num(x.unit).toFixed(2)+' ?</td><td>'+esc(x.vat)+'%</td><td>'+lttc.toFixed(2)+' ?</td></tr>'; }).join(''); var w=window.open('','_blank'); if(!w){toast('Permite fereastra de print.');return;} w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>Devis estimatif</title><style>body{font-family:Arial,sans-serif;padding:24px;color:#222}table{width:100%;border-collapse:collapse}th,td{border:1px solid #999;padding:6px;text-align:left}</style></head><body><h1>Devis estimatif</h1><p><b>'+esc(DECLARANT.name)+'</b><br>'+esc(DECLARANT.address)+'<br>NAPI: '+esc(DECLARANT.napi)+'</p><p>Date: '+esc(fmtDate(todayISO()))+'</p><table><thead><tr><th>Description</th><th>Qt?</th><th>PU HT</th><th>TVA</th><th>Total TTC</th></tr></thead><tbody>'+rows+'</tbody></table><p><b>Total HT:</b> '+ht.toFixed(2)+' ?<br><b>Total TTC estimatif:</b> '+ttc.toFixed(2)+' ?</p><p style="font-size:12px;color:#555">Document estimatif.</p><scr'+'ipt>window.onload=function(){window.print();}</scr'+'ipt></body></html>'); w.document.close(); }
+  function printLetter(){ var type=valOf('letterType')||'mairie'; var subj=valOf('letterSubject')||"Demande d'information"; var dest={mairie:'Monsieur le Maire\nMairie de Vitry-sur-Seine\n94400 Vitry-sur-Seine',assurance:'Service Assurance\n? l\'attention du gestionnaire de contrat',impots:'Service des Imp?ts des Particuliers\nCentre des Finances Publiques',cpam:'CPAM du Val-de-Marne\nService Ameli'}[type]||'Destinataire'; var body={mairie:"Je vous ?cris afin de vous transmettre ma demande concernant: "+subj+".",assurance:"Je vous contacte concernant mon dossier/contrat: "+subj+".",impots:"Je vous adresse ce courrier concernant: "+subj+".",cpam:"Je vous ?cris concernant: "+subj+"."}[type]||subj; var w=window.open('','_blank'); if(!w){toast('Permite fereastra de print.');return;} w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>Scrisoare</title><style>body{font-family:Arial,sans-serif;padding:28px;line-height:1.5;color:#222}.from{margin-bottom:24px}.to{margin-left:55%;white-space:pre-line;margin-bottom:24px}.date{text-align:right;margin-bottom:24px}</style></head><body><div class="from"><b>'+esc(DECLARANT.name)+'</b><br>'+esc(DECLARANT.address)+'<br>NAPI: '+esc(DECLARANT.napi)+'</div><div class="to">'+esc(dest)+'</div><div class="date">Vitry-sur-Seine, le '+esc(fmtDate(todayISO()))+'</div><p><b>Objet:</b> '+esc(subj)+'</p><p>Madame, Monsieur,</p><p>'+esc(body)+'</p><p>Je vous remercie par avance pour votre attention.</p><p>Cordialement,<br><br><b>'+esc(DECLARANT.name)+'</b></p><scr'+'ipt>window.onload=function(){window.print();}</scr'+'ipt></body></html>'); w.document.close(); }
+
   function handleClick(e) {
     var add = e.target.closest('[data-add]');
     if (add) {
@@ -5851,6 +5946,16 @@ var qrcode = function() {
     else if (action === 'seedHives') seedHives(true);
     else if (action === 'loadIcko2026') loadIcko2026();
     else if (action === 'printRegistry') printRegistry();
+    else if (action === 'toggleHiveView') setHiveViewMode(actEl.dataset.view||'list');
+    else if (action === 'printHoneyLabels') printHoneyLabels();
+    else if (action === 'addVehicle') addVehicle();
+    else if (action === 'delVehicle') { db.vehicles=(db.vehicles||[]).filter(function(x){return x.id!==id;}); save(); renderVehicles(); }
+    else if (action === 'addDevisLine') addDevisLine();
+    else if (action === 'delDevis') { db.devis=(db.devis||[]).filter(function(x){return x.id!==id;}); save(); renderDevis(); }
+    else if (action === 'printDevis') printDevis();
+    else if (action === 'printLetter') printLetter();
+    else if (action === 'setTabletState') { var hh=activeHive(); if(hh){ hh.tabletState=actEl.dataset.state; hh.tabletDate=todayISO(); save(); renderHiveSheet(); renderHives(); } }
+    else if (action === 'toggleVisit') { var hv=activeHive(); if(hv){ hv.visitChecklist=hv.visitChecklist||{}; var k=actEl.dataset.key; hv.visitChecklist[k]=!hv.visitChecklist[k]; hv.visitChecklistDate=todayISO(); save(); renderHiveSheet(); renderNextVisitPrep(db.hives); } }
     else if (action === 'addReading') addClimateReading();
     else if (action === 'analyzeAudio') analyzeAudio(false);
     else if (action === 'simulateAudio') analyzeAudio(true);
